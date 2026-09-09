@@ -27,7 +27,7 @@ uiNamespace setVariable ["LW_debugBody", _body];
 
 private _hint = _display ctrlCreate ["RscText", 5103];
 _hint ctrlSetPosition [0.10, 0.84, 0.78, 0.04];
-_hint ctrlSetText "Обновление: 1 сек. Закрыть: клавиша Ш или кнопка ESC.";
+_hint ctrlSetText "Обновление: 1 сек. Закрыть: клавиша ESC.";
 _hint ctrlSetTextColor [0.7, 0.7, 0.7, 1];
 _hint ctrlCommit 0;
 
