@@ -20,7 +20,7 @@ class CfgFunctions
         class Core
         {
             file = "living_war\functions";
-            class init {preInit = 1;};
+            class init {postInit = 1;};
             class applyMissionParams {serverOnly = 1;};
             class getConfig {};
             class getState {};
@@ -58,6 +58,8 @@ class CfgFunctions
         class UI
         {
             file = "living_war\functions";
+            class clientInit {postInit = 1;};
+            class showStatus {};
             class openDebugUI {};
             class updateDebugUI {};
             class closeDebugUI {};
