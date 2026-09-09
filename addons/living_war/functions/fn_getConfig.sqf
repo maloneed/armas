@@ -15,4 +15,8 @@ private _stored = profileNamespace getVariable ["LW_config", createHashMap];
 {
     _defaults set [_x, _stored getOrDefault [_x, _defaults get _x]];
 } forEach keys _defaults;
+private _runtime = missionNamespace getVariable ["LW_runtimeConfig", createHashMap];
+{
+    _defaults set [_x, _runtime get _x];
+} forEach keys _runtime;
 _defaults

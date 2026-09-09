@@ -3,6 +3,7 @@
     The server owns the state; clients receive read-only snapshots through public functions.
 */
 if (!isServer) exitWith {};
+call LW_fnc_applyMissionParams;
 
 private _loaded = call LW_fnc_loadState;
 if (!_loaded) then {
@@ -38,20 +39,14 @@ if (!_loaded) then {
     while {true} do {
         sleep 30;
         private _config = call LW_fnc_getConfig;
-        if (_config getOrDefault ["enabled", true] && {_config getOrDefault ["ambientEnabled", true]}) then {
-            call LW_fnc_ambientTick;
-        };
-        if (_config getOrDefault ["enabled", true] && {_config getOrDefault ["radioEnabled", true]} && {(diag_tickTime mod 120) < 30}) then {
-            call LW_fnc_radioTick;
-        };
-        if ((diag_tickTime mod 300) < 30) then {
-            if (_config getOrDefault ["enabled", true]) then {
-                call LW_fnc_persistAIState;
-                call LW_fnc_replenishLogistics;
-                call LW_fnc_assignAIRoles;
-                call LW_fnc_directorTick;
-                call LW_fnc_saveState;
-            };
+        if (_config getOrDefault ["enabled", true] && {_config getOrDefault ["ambientEnabled", true]}) then {call LW_fnc_ambientTick};
+        if (_config getOrDefault ["enabled", true] && {_config getOrDefault ["radioEnabled", true]} && {(diag_tickTime mod 120) < 30}) then {call LW_fnc_radioTick};
+        if ((diag_tickTime mod 300) < 30 && {_config getOrDefault ["enabled", true]}) then {
+            call LW_fnc_persistAIState;
+            call LW_fnc_replenishLogistics;
+            call LW_fnc_assignAIRoles;
+            call LW_fnc_directorTick;
+            call LW_fnc_saveState;
         };
     };
 };

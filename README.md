@@ -10,6 +10,16 @@
 -mod=@LivingWar
 ```
 
+## Настройки в меню Antistasi
+
+Готовый файл [`params.hpp`](params.hpp) содержит русские параметры Living War для стандартного setup UI Antistasi. Подключите его **внутри существующего класса `Params`** миссии:
+
+```cpp
+#include "params_living_war.hpp"
+```
+
+Подробная инструкция и пример `server.cfg`: [docs/ANTISTASI_SETTINGS.md](docs/ANTISTASI_SETTINGS.md).
+
 ## Текущие системы
 
 - серверное состояние кампании и сохранение;
@@ -19,29 +29,15 @@
 - hooks для конкретной версии Antistasi;
 - автоматическое назначение `QRF`, `GARRISON`, `PATROL`;
 - русская админская debug-панель;
-- ambient-анимации существующих солдат в лагерях, КПП и базах.
-
-## Примеры
-
-```sqf
-["checkpoint_alpha", "CHECKPOINT", getPosATL _checkpoint, 35, "town_alpha"] call LW_fnc_registerAmbientSite;
-["camp_alpha", "CAMP", getPosATL _camp, 45, "town_alpha"] call LW_fnc_registerAmbientSite;
-```
-
-```sqf
-LW_antistasiLogisticsHook = {
-    params ["_request"];
-    // Подключение конкретного API снабжения Antistasi.
-};
-```
-
-```sqf
-call LW_fnc_openDebugUI;
-```
+- ambient-анимации существующих солдат в лагерях, КПП и базах;
+- русские радиопереговоры и звуковые hooks;
+- 20 случайных мини-миссий лагерей с наградами и экономическим ущербом.
 
 ## Документация
 
+- [Настройки Antistasi](docs/ANTISTASI_SETTINGS.md)
 - [Интеграция AI Antistasi](docs/ANTISTASI_AI_INTEGRATION.md)
 - [Сохранение AI-состояния](docs/AI_STATE_PERSISTENCE.md)
 - [Логистика и ambient](docs/LOGISTICS_AND_AMBIENT.md)
+- [Радио и мини-миссии](docs/MISSIONS_AND_RADIO.md)
 - [Серверное тестирование](docs/SERVER_TESTING.md)

@@ -21,6 +21,7 @@ class CfgFunctions
         {
             file = "living_war\functions";
             class init {preInit = 1;};
+            class applyMissionParams {serverOnly = 1;};
             class getConfig {};
             class getState {};
             class getDistrict {};
