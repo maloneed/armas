@@ -2,12 +2,23 @@
 
 Модульная надстройка над совместимой миссией Antistasi для Arma 3. Проект хранит состояние кампании на сервере, реагирует на игровые события, использует существующие AI-группы и не заменяет базовую миссию.
 
-## Установка
+## Установка в один архив
 
-Скопируйте `release/@LivingWar` в папку сервера Arma 3 и запустите сервер с параметром:
+Скачайте архив [LivingWar-EasyInstall.zip](release/LivingWar-EasyInstall.zip), распакуйте его в корневую папку Arma 3 и добавьте папку `@LivingWar` через Arma 3 Launcher в разделе локальных модов. Затем подпишитесь на совместимую Antistasi в Steam Workshop, включите обе галочки и запустите `Новая игра -> Хостить сервер`.
+
+Внутри архива уже есть:
 
 ```text
--mod=@LivingWar
+@LivingWar/addons/living_war.pbo
+INSTALL_RU.txt
+```
+
+Antistasi должна быть установлена отдельно через Workshop: Living War не заменяет и не включает чужой мод.
+
+Для сервера Dedicated используйте ту же папку и параметр запуска:
+
+```text
+-mod=@Antistasi;@LivingWar
 ```
 
 ## Настройки в меню Antistasi
@@ -18,7 +29,7 @@
 #include "params_living_war.hpp"
 ```
 
-Подробная инструкция и пример `server.cfg`: [docs/ANTISTASI_SETTINGS.md](docs/ANTISTASI_SETTINGS.md).
+Подробная инструкция: [docs/ANTISTASI_SETTINGS.md](docs/ANTISTASI_SETTINGS.md).
 
 ## Текущие системы
 
@@ -35,6 +46,7 @@
 
 ## Документация
 
+- [Простая установка](release/INSTALL_RU.txt)
 - [Настройки Antistasi](docs/ANTISTASI_SETTINGS.md)
 - [Интеграция AI Antistasi](docs/ANTISTASI_AI_INTEGRATION.md)
 - [Сохранение AI-состояния](docs/AI_STATE_PERSISTENCE.md)
