@@ -7,7 +7,9 @@ private _defaults = createHashMapFromArray [
     ["dispatchRadius", 2500],
     ["autoAssignRoles", true],
     ["roleAssignmentRadius", 3500],
-    ["ambientEnabled", true]
+    ["ambientEnabled", true],
+    ["radioEnabled", true],
+    ["campMissionsEnabled", true]
 ];
 private _stored = profileNamespace getVariable ["LW_config", createHashMap];
 {

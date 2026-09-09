@@ -26,6 +26,7 @@ class CfgFunctions
             class getDistrict {};
             class getSummary {};
             class getCommanderBrief {};
+            class getMissionCatalog {};
             class registerDistrict {serverOnly = 1;};
             class applyEvent {serverOnly = 1;};
             class applyLogisticsEvent {serverOnly = 1;};
@@ -43,7 +44,11 @@ class CfgFunctions
             class directorTick {serverOnly = 1;};
             class registerAmbientSite {serverOnly = 1;};
             class ambientTick {serverOnly = 1;};
-            class runSmokeTest {serverOnly = 1;};
+            class radioTick {serverOnly = 1;};
+            class offerMission {serverOnly = 1;};
+            class requestCampMission {serverOnly = 1;};
+            class acceptMission {serverOnly = 1;};
+            class completeMission {serverOnly = 1;};
             class log {serverOnly = 1;};
             class saveState {serverOnly = 1;};
             class loadState {serverOnly = 1;};
@@ -55,6 +60,21 @@ class CfgFunctions
             class openDebugUI {};
             class updateDebugUI {};
             class closeDebugUI {};
+            class openCampUI {};
+            class showMissionOffer {};
+            class playRadioLine {};
         };
+    };
+};
+
+class CfgRemoteExec
+{
+    class Functions
+    {
+        mode = 2;
+        jip = 0;
+        class LW_fnc_requestCampMission {allowedTargets = 2;};
+        class LW_fnc_showMissionOffer {allowedTargets = 1;};
+        class LW_fnc_playRadioLine {allowedTargets = -2;};
     };
 };

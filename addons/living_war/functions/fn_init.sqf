@@ -22,6 +22,8 @@ if (!_loaded) then {
         ["aiGroups", []],
         ["callsignIndexes", createHashMap],
         ["logistics", createHashMap],
+        ["missions", []],
+        ["rewards", createHashMapFromArray [["manpower", 0], ["money", 0], ["eliteGear", 0]]],
         ["lastSavedAt", diag_tickTime]
     ], true];
 };
@@ -38,6 +40,9 @@ if (!_loaded) then {
         private _config = call LW_fnc_getConfig;
         if (_config getOrDefault ["enabled", true] && {_config getOrDefault ["ambientEnabled", true]}) then {
             call LW_fnc_ambientTick;
+        };
+        if (_config getOrDefault ["enabled", true] && {_config getOrDefault ["radioEnabled", true]} && {(diag_tickTime mod 120) < 30}) then {
+            call LW_fnc_radioTick;
         };
         if ((diag_tickTime mod 300) < 30) then {
             if (_config getOrDefault ["enabled", true]) then {
