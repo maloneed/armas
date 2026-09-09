@@ -1,0 +1,3 @@
+dist/
+*.pbo
+__pycache__/

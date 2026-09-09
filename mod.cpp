@@ -1,0 +1,9 @@
+name = "Living War";
+author = "maloneed";
+description = "A modular campaign-state layer for Antistasi";
+overview = "Living War";
+logo = "";
+logoOver = "";
+logoSmall = "";
+actionName = "Repository";
+action = "https://github.com/maloneed/armas";
