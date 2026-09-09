@@ -21,7 +21,9 @@ class CfgFunctions
         {
             file = "living_war\functions";
             class init {preInit = 1;};
+            class antistasiAdapter {serverOnly = 1;};
             class applyMissionParams {serverOnly = 1;};
+            class getStorageKey {serverOnly = 1;};
             class getConfig {};
             class getState {};
             class getDistrict {};
@@ -48,7 +50,6 @@ class CfgFunctions
             class radioTick {serverOnly = 1;};
             class offerMission {serverOnly = 1;};
             class requestCampMission {serverOnly = 1;};
-            class acceptMission {serverOnly = 1;};
             class completeMission {serverOnly = 1;};
             class log {serverOnly = 1;};
             class saveState {serverOnly = 1;};
