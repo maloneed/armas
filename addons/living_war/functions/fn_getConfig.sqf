@@ -6,7 +6,8 @@ private _defaults = createHashMapFromArray [
     ["dispatchAI", false],
     ["dispatchRadius", 2500],
     ["autoAssignRoles", true],
-    ["roleAssignmentRadius", 3500]
+    ["roleAssignmentRadius", 3500],
+    ["ambientEnabled", true]
 ];
 private _stored = profileNamespace getVariable ["LW_config", createHashMap];
 {

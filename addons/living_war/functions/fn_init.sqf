@@ -21,6 +21,7 @@ if (!_loaded) then {
         ["eventLog", []],
         ["aiGroups", []],
         ["callsignIndexes", createHashMap],
+        ["logistics", createHashMap],
         ["lastSavedAt", diag_tickTime]
     ], true];
 };
@@ -33,13 +34,19 @@ if (!_loaded) then {
     private _restored = call LW_fnc_restoreAIState;
     [format ["Restored %1 AI group records", count _restored]] call LW_fnc_log;
     while {true} do {
-        sleep 300;
+        sleep 30;
         private _config = call LW_fnc_getConfig;
-        if (_config getOrDefault ["enabled", true]) then {
-            call LW_fnc_persistAIState;
-            call LW_fnc_assignAIRoles;
-            call LW_fnc_directorTick;
-            call LW_fnc_saveState;
+        if (_config getOrDefault ["enabled", true] && {_config getOrDefault ["ambientEnabled", true]}) then {
+            call LW_fnc_ambientTick;
+        };
+        if ((diag_tickTime mod 300) < 30) then {
+            if (_config getOrDefault ["enabled", true]) then {
+                call LW_fnc_persistAIState;
+                call LW_fnc_replenishLogistics;
+                call LW_fnc_assignAIRoles;
+                call LW_fnc_directorTick;
+                call LW_fnc_saveState;
+            };
         };
     };
 };

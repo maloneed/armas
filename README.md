@@ -1,49 +1,47 @@
 # Living War
 
-Модульная надстройка над совместимой миссией Antistasi для Arma 3. Проект хранит состояние кампании на сервере и реагирует на игровые события, не заменяя базовую миссию.
+Модульная надстройка над совместимой миссией Antistasi для Arma 3. Проект хранит состояние кампании на сервере, реагирует на игровые события, использует существующие AI-группы и не заменяет базовую миссию.
 
-## Установка из репозитория
+## Установка
 
-Скачайте каталог `release/@LivingWar` и скопируйте его в папку сервера Arma 3. Запустите сервер с параметром:
+Скопируйте `release/@LivingWar` в папку сервера Arma 3 и запустите сервер с параметром:
 
 ```text
 -mod=@LivingWar
 ```
 
-Это готовая Workshop-подобная структура мода: PBO находится в `addons`, а метаданные — в `mod.cpp`. Для Steam Workshop серверный оператор может загрузить этот каталог через SteamCMD/Steam Workshop Publisher; сам GitHub не является заменой Workshop и не публикует предмет автоматически.
-
-## Сборка локально
-
-```bash
-./build_mod.sh
-```
-
-Результат появится в `dist/@LivingWar`. GitHub Actions также собирает ZIP при изменениях ветки `main`.
-
-## Реализованные системы
+## Текущие системы
 
 - серверное состояние кампании и сохранение;
-- события захвата, снабжения, диверсии, помощи населению и разведки через единый API;
-- директор войны с расчётом угрозы и реакциями `OBSERVE`, `PATROL`, `QRF_READY`, `COUNTERATTACK`;
-- показатели давления, поддержки населения, снабжения и угрозы по районам;
-- командирская сводка с рекомендациями;
-- готовый серверный smoke-тест.
+- сохранение AI-групп, ролей, позывных, loadout и позиции;
+- Director с реакциями на угрозу и боевые потери;
+- интеграция приказов с резервом боеприпасов и подкреплений;
+- hooks для конкретной версии Antistasi;
+- автоматическое назначение `QRF`, `GARRISON`, `PATROL`;
+- русская админская debug-панель;
+- ambient-анимации существующих солдат в лагерях, КПП и базах.
 
-## Основное API
+## Примеры
 
-- `LW_fnc_getState`
-- `LW_fnc_getDistrict`
-- `LW_fnc_getSummary`
-- `LW_fnc_getCommanderBrief`
-- `LW_fnc_registerDistrict`
-- `LW_fnc_applyEvent`
-- `LW_fnc_applyLogisticsEvent`
-- `LW_fnc_applyCivilianEvent`
-- `LW_fnc_directorTick`
-- `LW_fnc_runSmokeTest`
+```sqf
+["checkpoint_alpha", "CHECKPOINT", getPosATL _checkpoint, 35, "town_alpha"] call LW_fnc_registerAmbientSite;
+["camp_alpha", "CAMP", getPosATL _camp, 45, "town_alpha"] call LW_fnc_registerAmbientSite;
+```
 
-Инструкция тестирования: [docs/SERVER_TESTING.md](docs/SERVER_TESTING.md).
+```sqf
+LW_antistasiLogisticsHook = {
+    params ["_request"];
+    // Подключение конкретного API снабжения Antistasi.
+};
+```
 
-## Ограничения текущей версии
+```sqf
+call LW_fnc_openDebugUI;
+```
 
-Директор пока рассчитывает стратегическую реакцию, но не создаёт AI. Адаптеры конкретной версии Antistasi, карта командира и автоматическое определение игровых районов ещё требуют интеграции и тестирования на выделенном сервере.
+## Документация
+
+- [Интеграция AI Antistasi](docs/ANTISTASI_AI_INTEGRATION.md)
+- [Сохранение AI-состояния](docs/AI_STATE_PERSISTENCE.md)
+- [Логистика и ambient](docs/LOGISTICS_AND_AMBIENT.md)
+- [Серверное тестирование](docs/SERVER_TESTING.md)
