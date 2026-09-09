@@ -27,12 +27,17 @@ _lines pushBack "<t color='#ffd84a' size='1.15'>ПРИКАЗЫ DIRECTOR И РО�
 private _count = 0;
 {
     private _role = _x getVariable ["LW_antistasiRole", "НЕ НАЗНАЧЕНА"];
+    private _callsign = _x getVariable ["LW_callsign", "без позывного"];
     private _order = _x getVariable ["LW_directorOrder", createHashMap];
     if (_role != "UNASSIGNED" || {count _order > 0}) then {
         private _reaction = _order getOrDefault ["reaction", "нет приказа"];
         private _district = _x getVariable ["LW_districtId", "не определён"];
         private _strength = count (units _x select {alive _x});
-        _lines pushBack format ["Группа %1 — роль: %2 | район: %3 | приказ: %4 | бойцов: %5", groupId _x, _role, _district, _reaction, _strength];
+        private _losses = 0;
+        {
+            if ((_x getOrDefault ["callsign", ""]) == _callsign) exitWith {_losses = _x getOrDefault ["losses", 0]};
+        } forEach (_state getOrDefault ["aiGroups", []]);
+        _lines pushBack format ["%1 — роль: %2 | район: %3 | приказ: %4 | бойцов: %5 | потери: %6", _callsign, _role, _district, _reaction, _strength, _losses];
         _count = _count + 1;
     };
 } forEach allGroups;

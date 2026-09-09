@@ -31,7 +31,11 @@ class CfgFunctions
             class applyLogisticsEvent {serverOnly = 1;};
             class applyCivilianEvent {serverOnly = 1;};
             class getAntistasiGroups {serverOnly = 1;};
+            class assignCallsign {serverOnly = 1;};
             class assignAIRoles {serverOnly = 1;};
+            class captureGroupState {serverOnly = 1;};
+            class persistAIState {serverOnly = 1;};
+            class restoreAIState {serverOnly = 1;};
             class directorDispatch {serverOnly = 1;};
             class clearDirectorOrders {serverOnly = 1;};
             class directorTick {serverOnly = 1;};

@@ -6,19 +6,22 @@
 if (!isServer) exitWith {[]};
 params ["_reaction", "_districtId", ["_center", []], ["_radius", 1500], ["_side", east]];
 private _groups = [_center, _radius, _side] call LW_fnc_getAntistasiGroups;
-private _eligible = switch (toUpper _reaction) do {
+private _reactionKey = toUpper _reaction;
+private _eligible = switch (_reactionKey) do {
     case "COUNTERATTACK": {_groups select {(_x get "role") in ["QRF", "GARRISON", "UNASSIGNED"]}};
+    case "QRF_REQUEST": {_groups select {(_x get "role") in ["QRF", "RESERVE", "UNASSIGNED"]}};
     case "QRF_READY": {_groups select {(_x get "role") in ["QRF", "RESERVE", "UNASSIGNED"]}};
+    case "REGROUP": {_groups select {(_x get "role") in ["QRF", "GARRISON", "PATROL", "RESERVE"]}};
     case "PATROL": {_groups select {(_x get "role") in ["PATROL", "GARRISON", "UNASSIGNED"]}};
     default {[]};
 };
 private _orders = [];
-private _limit = if (toUpper _reaction == "COUNTERATTACK") then {2} else {1};
+private _limit = if (_reactionKey in ["COUNTERATTACK", "QRF_REQUEST"]) then {2} else {1};
 {
     if (count _orders >= _limit) exitWith {};
     private _group = _x get "group";
     private _order = createHashMapFromArray [
-        ["reaction", toUpper _reaction],
+        ["reaction", _reactionKey],
         ["district", _districtId],
         ["issuedAt", diag_tickTime],
         ["targetPosition", _center]

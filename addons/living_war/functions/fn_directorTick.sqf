@@ -1,5 +1,6 @@
 /*
     Strategic director tick. Existing AI dispatch is opt-in through LW_config.dispatchAI.
+    Recent AI losses can escalate a district reaction to REGROUP or QRF_REQUEST.
 */
 if (!isServer) exitWith {false};
 params [["_districtIds", []]];
@@ -7,6 +8,7 @@ private _state = call LW_fnc_getState;
 private _districts = _state getOrDefault ["districts", createHashMap];
 private _ids = if (count _districtIds == 0) then {keys _districts} else {_districtIds};
 private _config = call LW_fnc_getConfig;
+private _records = _state getOrDefault ["aiGroups", []];
 private _reactions = [];
 
 {
@@ -19,7 +21,15 @@ private _reactions = [];
     _district set ["threat", _threat];
     _districts set [_id, _district];
 
+    private _losses = 0;
+    {
+        if ((_x getOrDefault ["district", ""]) == _id) then {
+            _losses = _losses + (_x getOrDefault ["recentLosses", 0]);
+        };
+    } forEach _records;
     private _reaction = switch (true) do {
+        case (_losses >= 4): {"QRF_REQUEST"};
+        case (_losses >= 2): {"REGROUP"};
         case (_threat >= 75): {"COUNTERATTACK"};
         case (_threat >= 50): {"QRF_READY"};
         case (_threat >= 25): {"PATROL"};
@@ -34,6 +44,7 @@ private _reactions = [];
         ["district", _id],
         ["reaction", _reaction],
         ["threat", _threat],
+        ["recentLosses", _losses],
         ["ordersIssued", count _dispatch]
     ];
 } forEach _ids;
