@@ -2,7 +2,9 @@ private _defaults = createHashMapFromArray [
     ["enabled", true],
     ["autosave", true],
     ["maxEventLog", 100],
-    ["debug", false]
+    ["debug", false],
+    ["dispatchAI", false],
+    ["dispatchRadius", 2500]
 ];
 private _stored = profileNamespace getVariable ["LW_config", createHashMap];
 {

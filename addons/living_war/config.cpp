@@ -30,6 +30,9 @@ class CfgFunctions
             class applyEvent {serverOnly = 1;};
             class applyLogisticsEvent {serverOnly = 1;};
             class applyCivilianEvent {serverOnly = 1;};
+            class getAntistasiGroups {serverOnly = 1;};
+            class directorDispatch {serverOnly = 1;};
+            class clearDirectorOrders {serverOnly = 1;};
             class directorTick {serverOnly = 1;};
             class runSmokeTest {serverOnly = 1;};
             class log {serverOnly = 1;};

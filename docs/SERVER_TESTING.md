@@ -4,7 +4,7 @@
 
 Скопируйте `release/@LivingWar` в корень сервера и добавьте `-mod=@LivingWar` к параметрам запуска. Запускайте совместимую миссию Antistasi как обычно. Мод не требует собственной миссии.
 
-## Smoke-тест
+## Smoke-тест ядра
 
 В серверном debug-консоли или через серверный init-код выполните:
 
@@ -12,19 +12,62 @@
 call LW_fnc_runSmokeTest;
 ```
 
-Результат должен быть `Living War smoke test: PASS`. Тест создаёт район `lw_smoke_test`, имитирует сорванный конвой и получение разведданных, запускает тик директора и проверяет итоговое состояние.
+Результат должен быть `Living War smoke test: PASS`.
 
-## Проверки API
+## Тест интеграции AI-групп
+
+Сначала пометьте существующую AI-группу Antistasi, не содержащую игроков:
 
 ```sqf
-call LW_fnc_getSummary;
-call LW_fnc_getCommanderBrief;
-[["town_alpha"]] call LW_fnc_directorTick;
-["town_alpha", "CONVOY_SUCCESS", 10] call LW_fnc_applyLogisticsEvent;
-["town_alpha", "AID_DELIVERED"] call LW_fnc_applyCivilianEvent;
+private _g = /* существующая группа Antistasi */;
+_g setVariable ["LW_antistasiRole", "QRF", true];
+_g setVariable ["LW_districtId", "town_alpha", true];
 ```
 
-Все функции изменения состояния должны выполняться на сервере. При остановке или перезапуске сервера состояние хранится в `profileNamespace` профиля сервера. Для чистого теста используйте отдельный профиль, чтобы не смешивать тестовые районы с рабочей кампанией.
+Затем выдайте безопасный приказ:
+
+```sqf
+private _orders = ["QRF_READY", "town_alpha", getPosATL (leader _g), 3000, east] call LW_fnc_directorDispatch;
+diag_log format ["LW orders issued: %1", count _orders];
+```
+
+Проверьте на сервере:
+
+```sqf
+_g getVariable ["LW_directorOrder", createHashMap]
+```
+
+Группа должна получить поля `reaction`, `district`, `issuedAt` и `targetPosition`. По умолчанию Living War не меняет waypoint или FSM группы.
+
+Чтобы подключить движение к API конкретной версии Antistasi, задайте hook:
+
+```sqf
+LW_antistasiDirectorHook = {
+    params ["_group", "_order"];
+    // Здесь вызовите вашу версию функции постановки задачи Antistasi.
+    _group setVariable ["myMissionOrder", _order, true];
+};
+```
+
+После теста очистите приказы:
+
+```sqf
+call LW_fnc_clearDirectorOrders;
+```
+
+## Включение автоматической выдачи
+
+Автоматическая выдача выключена по умолчанию. Для района нужно сохранить позицию в его состоянии, затем включить в профиле сервера:
+
+```sqf
+private _cfg = profileNamespace getVariable ["LW_config", createHashMap];
+_cfg set ["dispatchAI", true];
+_cfg set ["dispatchRadius", 2500];
+profileNamespace setVariable ["LW_config", _cfg];
+saveProfileNamespace;
+```
+
+После этого `LW_fnc_directorTick` будет выдавать приказы существующим группам восточной стороны для реакций `PATROL`, `QRF_READY` и `COUNTERATTACK`. Группы игроков исключаются, новые группы не создаются.
 
 ## Что проверять в логах
 
@@ -32,4 +75,4 @@ call LW_fnc_getCommanderBrief;
 
 ## Ограничения
 
-Автоматический директор пока вычисляет реакцию (`OBSERVE`, `PATROL`, `QRF_READY`, `COUNTERATTACK`), но ещё не создаёт AI-группы. Подключение к конкретным переменным Antistasi и отображение в карте будут следующим интеграционным этапом.
+Названия и сигнатуры внутренних функций Antistasi различаются между версиями. Поэтому адаптер использует стабильный внешний hook `LW_antistasiDirectorHook`, а конкретный вызов создания waypoint или боевой задачи должен быть добавлен в mission init после проверки вашей версии Antistasi.

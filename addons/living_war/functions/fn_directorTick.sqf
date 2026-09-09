@@ -1,12 +1,12 @@
 /*
-    Lightweight strategic director tick.
-    This function only changes campaign state; spawning AI remains an integration concern.
+    Strategic director tick. Existing AI dispatch is opt-in through LW_config.dispatchAI.
 */
 if (!isServer) exitWith {false};
 params [["_districtIds", []]];
 private _state = call LW_fnc_getState;
 private _districts = _state getOrDefault ["districts", createHashMap];
 private _ids = if (count _districtIds == 0) then {keys _districts} else {_districtIds};
+private _config = call LW_fnc_getConfig;
 private _reactions = [];
 
 {
@@ -25,7 +25,17 @@ private _reactions = [];
         case (_threat >= 25): {"PATROL"};
         default {"OBSERVE"};
     };
-    _reactions pushBack createHashMapFromArray [["district", _id], ["reaction", _reaction], ["threat", _threat]];
+    private _dispatch = [];
+    private _position = _district getOrDefault ["position", []];
+    if (_config getOrDefault ["dispatchAI", false] && {_position isEqualType []} && {count _position >= 2} && {_reaction != "OBSERVE"}) then {
+        _dispatch = [_reaction, _id, _position, _config getOrDefault ["dispatchRadius", 2500], east] call LW_fnc_directorDispatch;
+    };
+    _reactions pushBack createHashMapFromArray [
+        ["district", _id],
+        ["reaction", _reaction],
+        ["threat", _threat],
+        ["ordersIssued", count _dispatch]
+    ];
 } forEach _ids;
 
 _state set ["districts", _districts];
