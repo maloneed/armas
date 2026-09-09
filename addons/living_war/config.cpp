@@ -76,6 +76,6 @@ class CfgRemoteExec
         jip = 0;
         class LW_fnc_requestCampMission {allowedTargets = 2;};
         class LW_fnc_showMissionOffer {allowedTargets = 1;};
-        class LW_fnc_playRadioLine {allowedTargets = -2;};
+        class LW_fnc_playRadioLine {allowedTargets = 0;};
     };
 };

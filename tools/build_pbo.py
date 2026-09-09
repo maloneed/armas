@@ -3,6 +3,7 @@
 from pathlib import Path
 import struct
 import sys
+import hashlib
 
 
 def header(name: str, size: int) -> bytes:
@@ -14,8 +15,9 @@ def build(source: Path, output: Path, prefix: str) -> None:
     files = sorted(p for p in source.rglob("*") if p.is_file())
     output.parent.mkdir(parents=True, exist_ok=True)
     with output.open("wb") as stream:
-        stream.write(header("prefix", len(prefix.encode("utf-8"))))
-        stream.write(prefix.encode("utf-8"))
+        # Version header followed by null-terminated extension key/value pairs.
+        stream.write(b"\0" + struct.pack("<5I", 0x56657273, 0, 0, 0, 0))
+        stream.write(b"prefix\0" + prefix.encode("utf-8") + b"\0\0")
         for path in files:
             data = path.read_bytes()
             name = path.relative_to(source).as_posix()
@@ -23,6 +25,9 @@ def build(source: Path, output: Path, prefix: str) -> None:
         stream.write(b"\0" * 21)
         for path in files:
             stream.write(path.read_bytes())
+    digest = hashlib.sha1(output.read_bytes()).digest()
+    with output.open("ab") as stream:
+        stream.write(b"\0" + digest)
 
 
 if __name__ == "__main__":
