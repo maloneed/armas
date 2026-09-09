@@ -31,6 +31,7 @@ class CfgFunctions
             class applyLogisticsEvent {serverOnly = 1;};
             class applyCivilianEvent {serverOnly = 1;};
             class getAntistasiGroups {serverOnly = 1;};
+            class assignAIRoles {serverOnly = 1;};
             class directorDispatch {serverOnly = 1;};
             class clearDirectorOrders {serverOnly = 1;};
             class directorTick {serverOnly = 1;};
@@ -38,6 +39,14 @@ class CfgFunctions
             class log {serverOnly = 1;};
             class saveState {serverOnly = 1;};
             class loadState {serverOnly = 1;};
+        };
+
+        class UI
+        {
+            file = "living_war\functions";
+            class openDebugUI {};
+            class updateDebugUI {};
+            class closeDebugUI {};
         };
     };
 };

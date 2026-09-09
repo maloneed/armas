@@ -31,6 +31,7 @@ if (!_loaded) then {
         sleep 300;
         private _config = call LW_fnc_getConfig;
         if (_config getOrDefault ["enabled", true]) then {
+            call LW_fnc_assignAIRoles;
             call LW_fnc_directorTick;
         };
     };
