@@ -1,0 +1,27 @@
+/*
+    Living War campaign state bootstrap.
+    The server owns the state; clients receive read-only snapshots through public functions.
+*/
+if (!isServer) exitWith {};
+
+private _loaded = call LW_fnc_loadState;
+if (!_loaded) then {
+    private _districts = createHashMap;
+    _districts set ["default", createHashMapFromArray [
+        ["pressure", 0],
+        ["support", 50],
+        ["supply", 50],
+        ["threat", 0]
+    ]];
+
+    missionNamespace setVariable ["LW_state", createHashMapFromArray [
+        ["version", 1],
+        ["sequence", 0],
+        ["districts", _districts],
+        ["eventLog", []],
+        ["lastSavedAt", diag_tickTime]
+    ], true];
+};
+
+["INIT", "default", createHashMapFromArray [["message", "Campaign state ready"]]] call LW_fnc_applyEvent;
+"Living War initialized" call LW_fnc_log;
