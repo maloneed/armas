@@ -25,3 +25,13 @@ if (!_loaded) then {
 
 ["INIT", "default", createHashMapFromArray [["message", "Campaign state ready"]]] call LW_fnc_applyEvent;
 "Living War initialized" call LW_fnc_log;
+
+[] spawn {
+    while {true} do {
+        sleep 300;
+        private _config = call LW_fnc_getConfig;
+        if (_config getOrDefault ["enabled", true]) then {
+            call LW_fnc_directorTick;
+        };
+    };
+};

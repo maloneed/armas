@@ -25,8 +25,13 @@ class CfgFunctions
             class getState {};
             class getDistrict {};
             class getSummary {};
+            class getCommanderBrief {};
             class registerDistrict {serverOnly = 1;};
             class applyEvent {serverOnly = 1;};
+            class applyLogisticsEvent {serverOnly = 1;};
+            class applyCivilianEvent {serverOnly = 1;};
+            class directorTick {serverOnly = 1;};
+            class runSmokeTest {serverOnly = 1;};
             class log {serverOnly = 1;};
             class saveState {serverOnly = 1;};
             class loadState {serverOnly = 1;};
