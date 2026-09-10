@@ -13,9 +13,11 @@ hint parseText format [
 ];
 private _old = uiNamespace getVariable ["LW_delegateAction", -1];
 if (_old >= 0) then {player removeAction _old};
-private _missionId = _result getOrDefault ["instanceId", _result getOrDefault ["missionId", ""]];
-private _action = player addAction ["<t color='#ffd84a'>◆ Делегировать задачу AI</t>", {
-    params ["_target", "_caller", "_id"];
-    [_id, "DEMOLITION"] remoteExecCall ["LW_fnc_requestDelegateMission", 2];
-}, _missionId, -9, false, true, "", "_this == player"];
-uiNamespace setVariable ["LW_delegateAction", _action];
+if (_result getOrDefault ["requiredCapability", ""] != "") then {
+    private _missionId = _result getOrDefault ["instanceId", _result getOrDefault ["missionId", ""]];
+    private _action = player addAction ["<t color='#ffd84a'>◆ Делегировать задачу AI</t>", {
+        params ["_target", "_caller", "_id"];
+        [_id, "DEMOLITION"] remoteExecCall ["LW_fnc_requestDelegateMission", 2];
+    }, _missionId, -9, false, true, "", "_this == player"];
+    uiNamespace setVariable ["LW_delegateAction", _action];
+};

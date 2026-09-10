@@ -17,14 +17,14 @@ private _changed = 0;
         } else {
             _op set ["state", "FAILED"];
             _op set ["blockedReason", "Группа потеряна после повторных попыток"];
-            [_op get "id", createHashMapFromArray [["operation", _op get "id"]], "CRITICAL"] call LW_fnc_radioPublish;
+            ["MISSION_FAILED", createHashMapFromArray [["operation", _op get "id"]], "CRITICAL"] call LW_fnc_radioPublish;
         };
         _changed = _changed + 1;
         continue
     };
     private _target = _targets getOrDefault [_op get "id", objNull];
     private _targetPos = _op getOrDefault ["targetPosition", []];
-    private _distance = if (isNull _target) then {leader _group distance2D _targetPos} else {leader _group distance2D _target};
+    private _distance = leader _group distance2D _target;
     if (_status in ["PREPARING", "MOVING"] && {_distance > 100}) then {
         _op set ["state", "MOVING"];
         (leader _group) doMove _targetPos;
@@ -33,28 +33,28 @@ private _changed = 0;
         if (_distance <= 100 && {_status in ["PREPARING", "MOVING", "APPROACHING"]}) then {
             _op set ["state", "EXECUTING"];
             _op set ["currentAction", "DEMOLITION"];
-            [_op get "id", createHashMapFromArray [["operation", _op get "id"], ["callsign", _op getOrDefault ["assignedCallsign", "ALPHA"]]], "OPERATIONAL"] call LW_fnc_radioPublish;
+            ["OBJECTIVE_REACHED", createHashMapFromArray [["operation", _op get "id"], ["callsign", _op getOrDefault ["assignedCallsign", "ALPHA"]]], "OPERATIONAL"] call LW_fnc_radioPublish;
         };
         if ((_op getOrDefault ["state", ""]) == "EXECUTING") then {
-            if (isNull _target || {!alive _target} || {_target getVariable ["LW_destroyed", false]}) then {
+            if (!alive _target || {_target getVariable ["LW_destroyed", false]}) then {
                 _op set ["state", "COMPLETED"];
                 _op set ["currentAction", "CONFIRMED"];
-                _op set ["lastTransition", diag_tickTime];
                 _group setVariable ["LW_currentOperation", "", true];
                 [_op getOrDefault ["targetId", ""], _op getOrDefault ["district", ""]] call LW_fnc_completeMission;
-                [_op get "id", createHashMapFromArray [["operation", _op get "id"], ["callsign", _op getOrDefault ["assignedCallsign", "ALPHA"]]], "CRITICAL"] call LW_fnc_radioPublish;
+                ["OBJECTIVE_DESTROYED", createHashMapFromArray [["operation", _op get "id"], ["callsign", _op getOrDefault ["assignedCallsign", "ALPHA"]]], "CRITICAL"] call LW_fnc_radioPublish;
             } else {
                 _target setDamage 1;
                 _target setVariable ["LW_destroyed", true, true];
                 _op set ["state", "VERIFYING"];
+                _op set ["currentAction", "VERIFYING"];
             };
         };
-        if ((_op getOrDefault ["state", ""]) == "VERIFYING" && {isNull _target || {!alive _target} || {_target getVariable ["LW_destroyed", false]}}) then {
+        if ((_op getOrDefault ["state", ""]) == "VERIFYING" && {!alive _target || {_target getVariable ["LW_destroyed", false]}}) then {
             _op set ["state", "COMPLETED"];
             _op set ["currentAction", "CONFIRMED"];
             _group setVariable ["LW_currentOperation", "", true];
             [_op getOrDefault ["targetId", ""], _op getOrDefault ["district", ""]] call LW_fnc_completeMission;
-            [_op get "id", createHashMapFromArray [["operation", _op get "id"]], "CRITICAL"] call LW_fnc_radioPublish;
+            ["OBJECTIVE_DESTROYED", createHashMapFromArray [["operation", _op get "id"]], "CRITICAL"] call LW_fnc_radioPublish;
         };
     };
     _op set ["lastTransition", diag_tickTime];

@@ -6,19 +6,33 @@ private _missionIndex = _missions findIf {(_x getOrDefault ["instanceId", ""]) =
 if (_missionIndex < 0) exitWith {false};
 private _mission = _missions select _missionIndex;
 if ((_mission getOrDefault ["status", "ACTIVE"]) != "ACTIVE") exitWith {false};
+_requiredCapability = _mission getOrDefault ["requiredCapability", _requiredCapability];
 private _groups = [];
-{if (isNull (_x getVariable ["LW_currentOperation", grpNull]) && {(alive leader _x)} && {[_x] call LW_fnc_getCapabilities find _requiredCapability >= 0}) then {_groups pushBack _x}} forEach allGroups;
+{if ((_x getVariable ["LW_currentOperation", ""]) isEqualTo "" && {(alive leader _x)} && {[_x] call LW_fnc_getCapabilities find _requiredCapability >= 0}) then {_groups pushBack _x}} forEach allGroups;
 if (count _groups == 0) exitWith {
     _mission set ["status", "WAITING_FOR_GROUP"];
     _mission set ["blockedReason", "Нет доступной группы с требуемой capability"];
     _missions set [_missionIndex, _mission];
     _state set ["missions", _missions];
     missionNamespace setVariable ["LW_state", _state, true];
-    [_missionId, createHashMapFromArray [["operation", _missionId], ["reason", "Нет доступной группы"]], "OPERATIONAL"] call LW_fnc_radioPublish;
+    ["MISSION_FAILED", createHashMapFromArray [["operation", _missionId], ["reason", "Нет доступной группы"]], "OPERATIONAL"] call LW_fnc_radioPublish;
     false
 };
 private _group = _groups select 0;
 private _targetPos = if (isNull _targetObject) then {_mission getOrDefault ["targetPosition", [0,0,0]]} else {getPosATL _targetObject};
+if (isNull _targetObject) then {
+    private _district = _state getOrDefault ["districts", createHashMap] getOrDefault [_mission getOrDefault ["district", ""], createHashMap];
+    private _origin = _district getOrDefault ["position", _targetPos];
+    private _targetTypes = _mission getOrDefault ["targetTypes", []];
+    if (count _targetTypes > 0 && {_origin isEqualType []} && {count _origin >= 2}) then {
+        private _near = nearestObjects [_origin, _targetTypes, 5000];
+        if (count _near > 0) then {_targetObject = _near select 0; _targetPos = getPosATL _targetObject};
+    };
+};
+if (isNull _targetObject) exitWith {
+    ["MISSION_FAILED", createHashMapFromArray [["operation", _missionId], ["reason", "Цель радиовышки не найдена"]], "OPERATIONAL"] call LW_fnc_radioPublish;
+    false
+};
 private _operation = ["DESTROY_STRUCTURE", _mission getOrDefault ["title", "Уничтожить объект"], _mission getOrDefault ["district", ""], _targetPos, _missionId] call LW_fnc_createOperation;
 _state = call LW_fnc_getState;
 private _ops = _state getOrDefault ["operations", []];
@@ -41,6 +55,6 @@ _missions set [_missionIndex, _mission];
 _state set ["operations", _ops];
 _state set ["missions", _missions];
 missionNamespace setVariable ["LW_state", _state, true];
-[_operation get "id", createHashMapFromArray [["operation", _operation get "id"], ["callsign", _operation get "assignedCallsign"]], "OPERATIONAL"] call LW_fnc_radioPublish;
+["ORDER_ASSIGNED", createHashMapFromArray [["operation", _operation get "id"], ["callsign", _operation get "assignedCallsign"]], "OPERATIONAL"] call LW_fnc_radioPublish;
 missionNamespace setVariable ["LW_dirty", true, true];
 true

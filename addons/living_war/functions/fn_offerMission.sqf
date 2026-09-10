@@ -15,6 +15,8 @@ private _record = createHashMapFromArray [
     ["instanceId", _instance], ["missionId", _mission get "id"], ["camp", _campId],
     ["district", _site getOrDefault ["district", ""]], ["title", _mission get "title"],
     ["description", _mission get "description"], ["category", _mission get "category"],
+    ["requiredCapability", _mission getOrDefault ["requiredCapability", ""]],
+    ["targetTypes", _mission getOrDefault ["targetTypes", []]],
     ["status", "ACTIVE"], ["assignedTo", owner _player], ["assignedAt", diag_tickTime],
     ["expiresAt", diag_tickTime + 3600], ["progress", 0], ["reward", _mission]
 ];
