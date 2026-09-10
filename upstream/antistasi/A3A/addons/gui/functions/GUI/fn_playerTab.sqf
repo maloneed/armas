@@ -1,0 +1,240 @@
+/*
+Maintainer: Caleb Serafin, DoomMetal
+    Handles updating and controls on the Player tab of the Main dialog.
+
+Arguments:
+    <STRING> Mode
+    <ARRAY<ANY>> Array of params for the mode when applicable. Params for specific modes are documented in the modes.
+
+Return Value:
+    Nothing
+
+Scope: Clients, Local Arguments, Local Effect
+Environment: Scheduled for control changes / Unscheduled for update
+Public: No
+Dependencies:
+    None
+
+Example:
+    ["update"] spawn FUNC(playerTab);
+
+License: APL-ND
+
+*/
+
+#include "..\..\dialogues\ids.inc"
+#include "..\..\dialogues\defines.hpp"
+#include "..\..\dialogues\textures.inc"
+#include "..\..\script_component.hpp"
+#include "..\..\..\garage\CfgDefines.inc"
+FIX_LINE_NUMBERS()
+
+params[["_mode","update"], ["_params",[]]];
+
+switch (_mode) do
+{
+    case ("update"):
+    {
+        Trace("Updating Player tab");
+        private _display = findDisplay A3A_IDD_MAINDIALOG;
+        if (isNull _display) exitWith {};
+
+        // Disable buttons for functions that are unavailable
+
+        // Undercover
+        private _undercoverButton = _display displayCtrl A3A_IDC_UNDERCOVERBUTTON;
+        private _undercoverIcon = _display displayCtrl A3A_IDC_UNDERCOVERICON;
+        ([] call A3A_fnc_canGoUndercover) params ["_canUndercover", "_reasonNotEnum", "_shortReasonNot", "_longReasonNot"];
+        private _isUndercover = _reasonNotEnum == 2; // Already undercover
+        if (_isUndercover) then {
+            // TEMPORARILY DISABLED Due to undercover system not allowing going to "not undercover" without reporting the player for 30 minutes.
+            // _undercoverButton ctrlEnable true;
+            // _undercoverButton ctrlSetTooltip "";
+            // _undercoverButton ctrlSetText "Go Overt";
+            // _undercoverButton ctrlRemoveAllEventHandlers "MouseButtonClick";
+            // _undercoverButton ctrlAddEventHandler ["MouseButtonClick", {player setCaptive false; ["update"] spawn FUNC(playerTab)}];
+            // _undercoverIcon ctrlSetTextColor ([A3A_COLOR_WHITE] call FUNC(configColorToArray));
+            // _undercoverIcon ctrlSetTooltip "";
+            // STAND IN CODE
+            _undercoverButton ctrlEnable false;
+            _undercoverButton ctrlSetTooltip "Already Undercover";
+            _undercoverButton ctrlSetText "Go Undercover";
+            _undercoverButton ctrlRemoveAllEventHandlers "MouseButtonClick";
+            _undercoverButton ctrlAddEventHandler ["MouseButtonClick", {[] spawn {
+                [] spawn A3A_fnc_goUndercover;
+                sleep 2;  // https://github.com/official-antistasi-community/A3-Antistasi/pull/3229#issuecomment-2110708172
+                ["update"] spawn FUNC(playerTab);
+            }}];
+            _undercoverIcon ctrlSetTextColor ([A3A_COLOR_BUTTON_BACKGROUND_DISABLED] call FUNC(configColorToArray));
+            _undercoverIcon ctrlSetTooltip "Already Undercover";
+        } else {
+            if (_canUndercover) then {
+                _undercoverButton ctrlEnable true;
+                _undercoverButton ctrlSetTooltip localize "STR_antistasi_dialogs_main_undercover";
+                _undercoverButton ctrlSetText localize "STR_antistasi_dialogs_main_undercover";
+                _undercoverButton ctrlRemoveAllEventHandlers "MouseButtonClick";
+                _undercoverButton ctrlAddEventHandler ["MouseButtonClick", {[] spawn {
+                    [] spawn A3A_fnc_goUndercover;
+                    sleep 2;  // https://github.com/official-antistasi-community/A3-Antistasi/pull/3229#issuecomment-2110708172
+                    ["update"] spawn FUNC(playerTab)
+                }}];
+                _undercoverIcon ctrlSetTextColor ([A3A_COLOR_WHITE] call FUNC(configColorToArray));
+                _undercoverIcon ctrlSetTooltip localize "STR_antistasi_dialogs_main_undercover";
+            } else {
+                _undercoverButton ctrlEnable false;
+                _undercoverButton ctrlSetTooltip (_shortReasonNot);
+                _undercoverButton ctrlSetText localize "STR_antistasi_dialogs_main_undercover";
+                _undercoverButton ctrlRemoveAllEventHandlers "MouseButtonClick";
+                _undercoverIcon ctrlSetTextColor ([A3A_COLOR_BUTTON_BACKGROUND_DISABLED] call FUNC(configColorToArray));
+                _undercoverIcon ctrlSetTooltip (_shortReasonNot);
+            };
+        };
+
+        // Fast travel
+        private _fastTravelButton = _display displayCtrl A3A_IDC_FASTTRAVELBUTTON;
+        private _fastTravelIcon = _display displayCtrl A3A_IDC_FASTTRAVELICON;
+        private _fastTravelBlockers = [player, player] call A3A_fnc_canFastTravel;
+        if (_fastTravelBlockers isEqualTo []) then {
+            _fastTravelButton ctrlEnable true;
+            _fastTravelButton ctrlSetTooltip localize "STR_antistasi_dialogs_main_fast_travel_tooltip";
+            _fastTravelIcon ctrlSetTextColor ([A3A_COLOR_WHITE] call FUNC(configColorToArray));
+            _fastTravelIcon ctrlSetTooltip localize "STR_antistasi_dialogs_main_fast_travel_tooltip";
+
+        } else {
+            _fastTravelButton ctrlEnable false;
+            private _prettyString = localize format ["STR_A3A_fn_dialogs_ftradio_" + _fastTravelBlockers#0];
+            _fastTravelButton ctrlSetTooltip _prettyString;
+            _fastTravelIcon ctrlSetTextColor ([A3A_COLOR_BUTTON_BACKGROUND_DISABLED] call FUNC(configColorToArray));
+            _fastTravelIcon ctrlSetTooltip _prettyString;
+        };
+
+        // Construct
+        /* private _constructButton = _display displayCtrl A3A_IDC_CONSTRUCTBUTTON;
+        private _constructIcon = _display displayCtrl A3A_IDC_CONSTRUCTICON;
+        private _canBuild = [false,"Walk here"];// [] call A3A_fnc_canBuild;  // ToDo define.
+        if (_canBuild # 0) then
+        {
+            _constructButton ctrlEnable true;
+            _constructButton ctrlSetTooltip "";
+            _constructIcon ctrlSetTextColor ([A3A_COLOR_WHITE] call FUNC(configColorToArray));
+            _constructIcon ctrlSetTooltip "";
+        } else {
+            _constructButton ctrlEnable false;
+            _constructButton ctrlSetTooltip (_canBuild # 1);
+            _constructIcon ctrlSetTextColor ([A3A_COLOR_BUTTON_BACKGROUND_DISABLED] call FUNC(configColorToArray));
+            _constructIcon ctrlSetTooltip (_canBuild # 1);
+        };
+        */
+
+        // Temporary code for testing, to be removed once a better substitute for the button is found.
+        private _constructButton = _display displayCtrl A3A_IDC_CONSTRUCTBUTTON;
+        private _constructIcon = _display displayCtrl A3A_IDC_CONSTRUCTICON;
+        _constructButton ctrlEnable true;
+        _constructIcon ctrlSetTextColor ([A3A_COLOR_WHITE] call FUNC(configColorToArray));
+        _constructButton ctrlSetTooltip localize "STR_antistasi_dialogs_main_warstatustooltip";
+
+        // AI Management
+        _aiManagementTooltipText = "";
+        call A3A_fnc_canManageAI params ["_canManageAI","_aiManagementButton"];
+
+        private _aiManagementButton = _display displayCtrl A3A_IDC_AIMANAGEMENTBUTTON;
+        private _aiManagementIcon = _display displayCtrl A3A_IDC_AIMANAGEMENTICON;
+
+        if (_canManageAi) then {
+            _aiManagementButton ctrlEnable true;
+            _aiManagementButton ctrlSetTooltip "";
+            _aiManagementIcon ctrlSetTextColor ([A3A_COLOR_WHITE] call FUNC(configColorToArray));
+        } else {
+            _aiManagementButton ctrlEnable false;
+            _aiManagementButton ctrlSetTooltip _aiManagementTooltipText;
+            _aiManagementIcon ctrlSetTextColor ([A3A_COLOR_BUTTON_BACKGROUND_DISABLED] call FUNC(configColorToArray));
+        };
+
+
+        // Player info/stats section
+
+        private _playerNameText = _display displayCtrl A3A_IDC_PLAYERNAMETEXT;
+        private _playerRankText = _display displayCtrl A3A_IDC_PLAYERRANKTEXT;
+        private _playerRankPicture = _display displayCtrl A3A_IDC_PLAYERRANKPICTURE;
+        private _aliveText = _display displayCtrl A3A_IDC_ALIVETEXT;
+        private _missionsText = _display displayCtrl A3A_IDC_MISSIONSTEXT;
+        private _killsLabel = _display displayCtrl A3A_IDC_KILLSLABEL;
+        private _killsText = _display displayCtrl A3A_IDC_KILLSTEXT;
+        private _commanderPicture = _display displayCtrl A3A_IDC_COMMANDERPICTURE;
+        private _commanderText = _display displayCtrl A3A_IDC_COMMANDERTEXT;
+        private _commanderButton = _display displayCtrl A3A_IDC_COMMANDERBUTTON;
+        private _moneyText = _display displayCtrl A3A_IDC_MONEYTEXT;
+        private _infoBarCB = _display displayCtrl A3A_IDC_HIDETOPBARCHECKBOX;
+
+        _playerNameText ctrlSetText name player;
+
+        _playerRankText ctrlSetText ([player, "displayName"] call BIS_fnc_rankParams);
+        _playerRankPicture ctrlSetText ([player, "texture"] call BIS_fnc_rankParams);
+
+        private _time = round (time - A3A_aliveTime); // current time - time since last (re)spawn
+        _aliveText ctrlSetText format [[_time,1,1,false,2,false,true] call A3A_fnc_timeSpan_format];
+
+        private _missions = player getVariable ["missionsCompleted",0];
+        _missionsText ctrlSetText str _missions;
+
+        if (isMultiplayer) then {
+            _killsText ctrlSetText str ((getPlayerScores player)#0);
+        } else {
+            _killsLabel ctrlShow false;
+            _killsText ctrlShow false;
+        };
+        
+
+        // Update commander icon/text/button
+        // TODO UI-update: Add member check
+        if (theBoss == player) then {
+            // Player is commander
+            // Update icon
+            _commanderPicture ctrlSetText A3A_Icon_PlayerCommander;
+            _commanderPicture ctrlSetTextColor ([A3A_COLOR_COMMANDER] call FUNC(configColorToArray));
+            // Update text
+            _commanderText ctrlSetText localize "STR_antistasi_dialogs_main_commander_text_commander";
+            _commanderText ctrlSetTextColor ([A3A_COLOR_COMMANDER] call FUNC(configColorToArray));
+            // Update button
+            _commanderButton ctrlSetText localize "STR_antistasi_dialogs_main_commander_button_resign";
+        } else {
+            if (player getVariable ["eligible", false]) then {
+                // Player is eligible for commander
+                // Update icon
+                _commanderPicture ctrlSetText A3A_Icon_PlayerEligible;
+                _commanderPicture ctrlSetTextColor ([A3A_COLOR_ELIGIBLE] call FUNC(configColorToArray));
+                // Update text
+                _commanderText ctrlSetText localize "STR_antistasi_dialogs_main_commander_text_eligible";
+                _commanderText ctrlSetTextColor ([A3A_COLOR_ELIGIBLE] call FUNC(configColorToArray));
+                // Update button
+                _commanderButton ctrlSetText localize "STR_antistasi_dialogs_main_commander_button_set_ineligible";
+            } else {
+                // Player is not eligible for commander
+                // Update icon
+                _commanderPicture ctrlSetText A3A_Icon_PlayerIneligible;
+                _commanderPicture ctrlSetTextColor ([A3A_COLOR_INELIGIBLE] call FUNC(configColorToArray));
+                // Update text
+                _commanderText ctrlSetText localize "STR_antistasi_dialogs_main_commander_text_ineligible";
+                _commanderText ctrlSetTextColor ([A3A_COLOR_INELIGIBLE] call FUNC(configColorToArray));
+                // Update button
+                _commanderButton ctrlSetText localize "STR_antistasi_dialogs_main_commander_button_set_eligible";
+            };
+
+        };
+
+        // Update money
+        private _money = player getVariable "moneyX";
+        _moneyText ctrlSetText format[localize "STR_antistasi_dialogs_main_player_money_text", _money];
+
+        _infoBarCB cbSetChecked !(ctrlShown ((uiNameSpace getVariable "H8erHUD") displayCtrl 1001));
+
+        // Context menu is completely seperate. Build there.
+        [] call FUNC(buildContextMenu);
+        
+    };
+
+    default {
+        // Log error if attempting to call a mode that doesn't exist
+        Error_1("Player tab mode does not exist: %1", _mode);
+    };
+};

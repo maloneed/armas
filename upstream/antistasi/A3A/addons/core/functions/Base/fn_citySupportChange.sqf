@@ -1,0 +1,75 @@
+// This function is now unscheduled only
+// If <0 is provided, it reduces the accumHR value instead
+
+#include "..\..\script_component.hpp"
+FIX_LINE_NUMBERS()
+
+if (!isServer) exitWith {Error("Server-only function miscalled")};
+
+Trace_1("Params: %1", _this);
+
+params [["_change",""], ["_pos",""], ["_scaled", true]]; // nil protection
+if !(_change isEqualType 0) exitWith {Error("The first parameter, the support change, must be a number");};
+if (_pos isEqualTo "") exitWith {Error("The second parameter, the position, must be a string (city name) or array (coordinates)");};
+
+private _city = if (_pos in citiesX) then {_pos} else {
+	// Other enemies still count if within city marker for now
+	if (_pos isEqualType "") then { _pos = markerPos _pos };			// could be passed non-city marker
+	private _nearCities = citiesX inAreaArray [_pos, 700, 700];
+	private _nearCities = _nearCities select { (markerSize _x # 0) + 200 > (markerPos _x distance2d _pos) };
+	selectRandom _nearCities;
+};
+if (isNil "_city") exitWith {};			// Unit not in city
+if (A3A_cityData isNil _city) exitWith {Error_1("City %1 not found in city data", _city);};
+if (_city in destroyedSites) exitWith {};
+
+private _cityData = A3A_cityData getVariable _city;
+_cityData params ["_numCiv", "_supportReb", "_accumHR", "_taskDelay"];		// add task delay? Could save it then...
+
+if (_scaled) then {
+	_change = 10 * _change / sqrt _numCiv;			// normalized to 1 = 1% at size 100
+};
+
+if (_change > 0) then {
+	private _antenna = A3A_antennaMap get _city;
+	if (!alive _antenna) then { _change = _change * 1.5 } else {
+		private _antSide = sidesX getVariable (A3A_antennaMap get netId _antenna);
+		_change = _change * ([1, 2] select (_antSide == teamPlayer));
+	};
+	private _stationPos = A3A_garrison get _site getOrDefault ["policeStation", false];
+	if (_stationPos isEqualTo []) then { _change = _change * 1.5 };
+};
+
+Trace_2("City %1 change %2", _city, _change);
+
+// Cap rebel support to 0-100. Changes below 0 reduce accumHR
+_supportReb = (_supportReb + _change) min 100;
+if (_supportReb < 0) then {
+	_accumHR = _accumHR + (_supportReb / 5);			// 1 HR per 5 pop at size 100
+	_supportReb = 0;
+};
+
+A3A_cityData setVariable [_city, [_numCiv, _supportReb, _accumHR, _taskDelay]];
+
+// Flip logic...
+private _citySide = sidesX getVariable _city;
+if (_supportReb > 80 and _citySide != teamPlayer) then
+{
+	if (_city in A3A_activeCityBattles) exitWith {};			// might be possible?
+	if (count keys A3A_activeCityBattles > 0) exitWith {};		// don't allow multiple simultaneous city battles for now
+
+	// Run cityBattle task if it's a significant town
+	// Avoid generating city battles in smaller cities if defence resources are low
+	private _minPop = A3A_minCityBattlePop * linearConversion [0, 1000, A3A_resourcesDefenceOcc, 1.4, 1.0, true];
+	Trace_3("City %1 numCiv %2, city battle minPop %3", _city, sqrt _numCiv, _minPop);
+	if (sqrt _numCiv >= _minPop) exitWith {
+		A3A_activeCityBattles set [_city, true];
+		[A3A_tasks_fnc_cityBattle, [_city]] spawn A3A_tasks_fnc_runTask;
+	};
+	[_city, teamPlayer] call A3A_fnc_citySideChange;			// just autoflip for small stuff
+};
+if (_supportReb < 40 and _citySide == teamPlayer) then {
+	[_city, Occupants] call A3A_fnc_citySideChange;			// TODO: figure out which side to flip to
+};
+
+true;

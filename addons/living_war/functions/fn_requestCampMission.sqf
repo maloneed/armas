@@ -1,6 +1,10 @@
 if (!isServer) exitWith {};
 private _config = call LW_fnc_getConfig;
 if !(_config getOrDefault ["campMissionsEnabled", true]) exitWith {};
-params ["_player", "_campId"];
+private _sender = remoteExecutedOwner;
+private _players = allPlayers select {owner _x == _sender && {alive _x}};
+if (count _players != 1) exitWith {diag_log format ["[Living War] Mission request rejected: invalid sender %1", _sender]};
+private _player = _players select 0;
+params [["_campId", ""]];
 private _result = [_player, _campId] call LW_fnc_offerMission;
-[_result] remoteExecCall ["LW_fnc_showMissionOffer", owner _player];
+[_result] remoteExecCall ["LW_fnc_showMissionOffer", _sender];

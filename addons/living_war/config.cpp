@@ -21,13 +21,25 @@ class CfgFunctions
         {
             file = "living_war\functions";
             class init {postInit = 1;};
+            class antistasiAdapter {serverOnly = 1;};
+            class autoBootstrap {serverOnly = 1;};
+            class runAutoTest {serverOnly = 1;};
+            class exportAutoTest {serverOnly = 1;};
             class applyMissionParams {serverOnly = 1;};
+            class getStorageKey {serverOnly = 1;};
             class getConfig {};
             class getState {};
             class getDistrict {};
             class getSummary {};
             class getCommanderBrief {};
             class getMissionCatalog {};
+            class getCapabilities {serverOnly = 1;};
+            class recordIntel {serverOnly = 1;};
+            class radioPublish {serverOnly = 1;};
+            class createOperation {serverOnly = 1;};
+            class delegateMission {serverOnly = 1;};
+            class operationTick {serverOnly = 1;};
+            class requestDelegateMission {serverOnly = 1;};
             class registerDistrict {serverOnly = 1;};
             class applyEvent {serverOnly = 1;};
             class applyLogisticsEvent {serverOnly = 1;};
@@ -48,7 +60,6 @@ class CfgFunctions
             class radioTick {serverOnly = 1;};
             class offerMission {serverOnly = 1;};
             class requestCampMission {serverOnly = 1;};
-            class acceptMission {serverOnly = 1;};
             class completeMission {serverOnly = 1;};
             class log {serverOnly = 1;};
             class saveState {serverOnly = 1;};
@@ -66,6 +77,10 @@ class CfgFunctions
             class openCampUI {};
             class showMissionOffer {};
             class playRadioLine {};
+            class openCommanderUI {};
+            class updateCommanderMap {};
+            class showDelegationResult {};
+            class restoreVanillaRadioUI {};
         };
     };
 };
@@ -77,7 +92,9 @@ class CfgRemoteExec
         mode = 2;
         jip = 0;
         class LW_fnc_requestCampMission {allowedTargets = 2;};
+        class LW_fnc_requestDelegateMission {allowedTargets = 2;};
         class LW_fnc_showMissionOffer {allowedTargets = 1;};
+        class LW_fnc_showDelegationResult {allowedTargets = 1;};
         class LW_fnc_playRadioLine {allowedTargets = 0;};
     };
 };

@@ -1,0 +1,6 @@
+Source repository: https://github.com/official-antistasi-community/A3-Antistasi
+Tag: 3.11.1
+Commit: 6e4226d3863ca8673535386c2fff8b6e08a806c4
+Imported by ARMAS as an internal baseline.
+Excluded upstream APL-ND components: A3A/addons/garage and Tools/StreetArtist.
+Do not add excluded components without a separate license decision.
