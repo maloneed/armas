@@ -77,6 +77,7 @@ class CfgFunctions
             class openCommanderUI {};
             class updateCommanderMap {};
             class showDelegationResult {};
+            class restoreVanillaRadioUI {};
         };
     };
 };

@@ -32,11 +32,16 @@ missionNamespace setVariable ["LW_serverReady", true, true];
     private _nextAmbient = diag_tickTime;
     private _nextRadio = diag_tickTime;
     private _nextDirector = diag_tickTime + 300;
+    private _nextOperations = diag_tickTime + 10;
     private _nextSave = diag_tickTime + 300;
     while {true} do {
         sleep 5;
         private _now = diag_tickTime;
         private _config = call LW_fnc_getConfig;
+        if (_now >= _nextOperations) then {
+            call LW_fnc_operationTick;
+            _nextOperations = _now + 10;
+        };
         if (_config getOrDefault ["enabled", true] && {_config getOrDefault ["ambientEnabled", true]} && {_now >= _nextAmbient}) then {
             call LW_fnc_ambientTick;
             _nextAmbient = _now + 30;
