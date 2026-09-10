@@ -22,6 +22,9 @@ class CfgFunctions
             file = "living_war\functions";
             class init {postInit = 1;};
             class antistasiAdapter {serverOnly = 1;};
+            class autoBootstrap {serverOnly = 1;};
+            class runAutoTest {serverOnly = 1;};
+            class exportAutoTest {serverOnly = 1;};
             class applyMissionParams {serverOnly = 1;};
             class getStorageKey {serverOnly = 1;};
             class getConfig {};

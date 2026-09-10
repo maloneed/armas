@@ -16,7 +16,8 @@ if (!_loaded) then {
     missionNamespace setVariable ["LW_state", createHashMapFromArray [
         ["version", 2], ["sequence", 0], ["districts", _districts], ["eventLog", []],
         ["aiGroups", []], ["callsignIndexes", createHashMap], ["logistics", createHashMap],
-        ["missions", []], ["rewards", createHashMapFromArray [["manpower", 0], ["money", 0], ["eliteGear", 0]]],
+        ["missions", []], ["operations", []], ["radioEvents", []], ["enemyIntel", []],
+        ["rewards", createHashMapFromArray [["manpower", 0], ["money", 0], ["eliteGear", 0]]],
         ["lastSavedAt", diag_tickTime]
     ], true];
 };
@@ -26,18 +27,30 @@ if (!_loaded) then {
 missionNamespace setVariable ["LW_serverReady", true, true];
 
 [] spawn {
-    sleep 20;
+    sleep 15;
+    private _bootstrap = call LW_fnc_autoBootstrap;
     private _restored = call LW_fnc_restoreAIState;
-    [format ["Restored %1 AI metadata records; Antistasi owns entity lifecycle", count _restored]] call LW_fnc_log;
+    [format ["Restored %1 AI metadata records; bootstrap groups=%2 districts=%3", count _restored, _bootstrap getOrDefault ["groups", 0], _bootstrap getOrDefault ["districts", 0]]] call LW_fnc_log;
+    call LW_fnc_runAutoTest;
     private _nextAmbient = diag_tickTime;
     private _nextRadio = diag_tickTime;
     private _nextDirector = diag_tickTime + 300;
     private _nextOperations = diag_tickTime + 10;
+    private _nextBootstrap = diag_tickTime + 60;
+    private _nextTest = diag_tickTime + 300;
     private _nextSave = diag_tickTime + 300;
     while {true} do {
         sleep 5;
         private _now = diag_tickTime;
         private _config = call LW_fnc_getConfig;
+        if (_now >= _nextBootstrap) then {
+            call LW_fnc_autoBootstrap;
+            _nextBootstrap = _now + 60;
+        };
+        if (_now >= _nextTest) then {
+            call LW_fnc_runAutoTest;
+            _nextTest = _now + 300;
+        };
         if (_now >= _nextOperations) then {
             call LW_fnc_operationTick;
             _nextOperations = _now + 10;
