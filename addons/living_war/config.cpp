@@ -20,7 +20,7 @@ class CfgFunctions
         class Core
         {
             file = "living_war\functions";
-            class init {preInit = 1;};
+            class init {postInit = 1;};
             class antistasiAdapter {serverOnly = 1;};
             class applyMissionParams {serverOnly = 1;};
             class getStorageKey {serverOnly = 1;};
@@ -59,6 +59,8 @@ class CfgFunctions
         class UI
         {
             file = "living_war\functions";
+            class clientInit {postInit = 1;};
+            class showStatus {};
             class openDebugUI {};
             class updateDebugUI {};
             class closeDebugUI {};
@@ -77,6 +79,6 @@ class CfgRemoteExec
         jip = 0;
         class LW_fnc_requestCampMission {allowedTargets = 2;};
         class LW_fnc_showMissionOffer {allowedTargets = 1;};
-        class LW_fnc_playRadioLine {allowedTargets = -2;};
+        class LW_fnc_playRadioLine {allowedTargets = 0;};
     };
 };
