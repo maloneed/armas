@@ -1,59 +1,39 @@
-# Living War
+# ARMAS / Living War
 
-Модульная надстройка над совместимой миссией Antistasi для Arma 3. Проект хранит состояние кампании на сервере, реагирует на игровые события, использует существующие AI-группы и не заменяет базовую миссию.
+ARMAS is the project-owned Antistasi-based codebase with the Living War strategic layer integrated into it. The repository contains a pinned Antistasi Community 3.11.1 baseline under `upstream/antistasi/`; the APL-ND garage and StreetArtist components are intentionally excluded. Living War does not run a competing campaign manager: Antistasi remains authoritative for its campaign and physical AI lifecycle while ARMAS adds operations, delegation, intelligence, radio and command presentation.
 
-## Установка в один архив
+## Current playable vertical slice
 
-Скачайте архив [LivingWar-EasyInstall.zip](release/LivingWar-EasyInstall.zip), распакуйте его в корневую папку Arma 3 и добавьте папку `@LivingWar` через Arma 3 Launcher в разделе локальных модов. Затем подпишитесь на совместимую Antistasi в Steam Workshop, включите обе галочки и запустите `Новая игра -> Хостить сервер`.
+A player can request a camp mission, choose the AI delegation action, and have the server select an existing group with the required capability. ARMAS creates a persistent operation, assigns the group, moves it toward the target, executes and verifies the demolition path, applies mission completion, and emits structured Russian radio events. `ARMAS Strategic Command` opens a map with dynamic friendly-group, operation and fog-of-war intel markers; it refreshes every ten seconds rather than every frame.
 
-Внутри архива уже есть:
+The operation framework is reusable. Its states include `PLANNING`, `PREPARING`, `MOVING`, `APPROACHING`, `EXECUTING`, `VERIFYING`, `COMPLETED`, `FAILED`, `ABORTED` and `RETRYING`. Capabilities are abstract (`DEMOLITION`, `ANTI_ARMOR`, `ASSAULT`, `MEDICAL`, `TRANSPORT`, `SUPPORT`) rather than tied to one classname.
 
-```text
-@LivingWar/addons/living_war.pbo
-INSTALL_RU.txt
+## Installation
+
+Download [LivingWar-EasyInstall.zip](release/LivingWar-EasyInstall.zip), extract it into the Arma 3 directory, and enable `@LivingWar` in the launcher. Start a compatible Antistasi Community mission with both systems loaded. The target side must be configured by the mission after its faction setup:
+
+```sqf
+if (isServer) then {
+    missionNamespace setVariable ["LW_enemySide", east, true];
+};
 ```
 
-Antistasi должна быть установлена отдельно через Workshop: Living War не заменяет и не включает чужой мод.
+For a dedicated server use `-mod=@Antistasi;@LivingWar`. See [ANTISTASI_BASELINE.md](docs/ANTISTASI_BASELINE.md), [COMPATIBILITY.md](docs/COMPATIBILITY.md), and [RADIO_UI_REGRESSION.md](docs/RADIO_UI_REGRESSION.md) for the current integration and provenance contract.
 
-Для сервера Dedicated используйте ту же папку и параметр запуска:
+## Existing systems
 
-```text
--mod=@Antistasi;@LivingWar
-```
+The project retains the startup status, Antistasi settings, logistics, ambient life, Russian radio, camp missions, AI callsigns, Director reactions and server persistence already present in the repository. The new vertical slice extends those systems rather than replacing them.
 
-## Настройки в меню Antistasi
+## Development and testing
 
-Готовый файл [`params.hpp`](params.hpp) содержит русские параметры Living War для стандартного setup UI Antistasi. Подключите его **внутри существующего класса `Params`** миссии:
+Use a feature branch and small commits. Build with `./build_mod.sh dist`; create the easy-install archive with `./build_easy_install.sh`. Static delimiter checks, PBO marker checks and ZIP validation are run locally. A real dedicated-server scenario remains the next runtime verification step; the sandbox cannot execute Arma 3.
 
-```cpp
-#include "params_living_war.hpp"
-```
+## Documentation
 
-Подробная инструкция: [docs/ANTISTASI_SETTINGS.md](docs/ANTISTASI_SETTINGS.md).
-
-## Текущие системы
-
-После входа в миссию появляется уведомление «◆ LIVING WAR» с состоянием ядра. Повторно открыть его можно через меню действий бойца: «Living War — состояние». Проверка доступна также после возрождения. Если ядро не подтвердило запуск за 30 секунд, отображается предупреждение.
-
-Важно: установка PBO сама по себе не регистрирует лагеря Antistasi. Если индикатор показывает «Лагерей: 0», бытовые сцены не будут запускаться до подключения точек через `LW_fnc_registerAmbientSite`. Индикатор подтверждает запуск ядра, а не полную интеграцию с Antistasi.
-
-- серверное состояние кампании и сохранение;
-- сохранение AI-групп, ролей, позывных, loadout и позиции;
-- Director с реакциями на угрозу и боевые потери;
-- интеграция приказов с резервом боеприпасов и подкреплений;
-- hooks для конкретной версии Antistasi;
-- автоматическое назначение `QRF`, `GARRISON`, `PATROL`;
-- русская админская debug-панель;
-- ambient-анимации существующих солдат в лагерях, КПП и базах;
-- русские радиопереговоры и звуковые hooks;
-- 20 случайных мини-миссий лагерей с наградами и экономическим ущербом.
-
-## Документация
-
-- [Простая установка](release/INSTALL_RU.txt)
-- [Настройки Antistasi](docs/ANTISTASI_SETTINGS.md)
-- [Интеграция AI Antistasi](docs/ANTISTASI_AI_INTEGRATION.md)
-- [Сохранение AI-состояния](docs/AI_STATE_PERSISTENCE.md)
-- [Логистика и ambient](docs/LOGISTICS_AND_AMBIENT.md)
-- [Радио и мини-миссии](docs/MISSIONS_AND_RADIO.md)
-- [Серверное тестирование](docs/SERVER_TESTING.md)
+- [Simple installation](release/INSTALL_RU.txt)
+- [Antistasi baseline and provenance](docs/ANTISTASI_BASELINE.md)
+- [Compatibility contract](docs/COMPATIBILITY.md)
+- [Radio/HUD regression analysis](docs/RADIO_UI_REGRESSION.md)
+- [Architecture audit](docs/ARCHITECTURE_AUDIT.md)
+- [Donor matrix](docs/DONOR_MATRIX.md)
+- [Roadmap](docs/ROADMAP_2.md)
