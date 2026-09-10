@@ -30,6 +30,13 @@ class CfgFunctions
             class getSummary {};
             class getCommanderBrief {};
             class getMissionCatalog {};
+            class getCapabilities {serverOnly = 1;};
+            class recordIntel {serverOnly = 1;};
+            class radioPublish {serverOnly = 1;};
+            class createOperation {serverOnly = 1;};
+            class delegateMission {serverOnly = 1;};
+            class operationTick {serverOnly = 1;};
+            class requestDelegateMission {serverOnly = 1;};
             class registerDistrict {serverOnly = 1;};
             class applyEvent {serverOnly = 1;};
             class applyLogisticsEvent {serverOnly = 1;};
@@ -67,6 +74,9 @@ class CfgFunctions
             class openCampUI {};
             class showMissionOffer {};
             class playRadioLine {};
+            class openCommanderUI {};
+            class updateCommanderMap {};
+            class showDelegationResult {};
         };
     };
 };
@@ -78,7 +88,9 @@ class CfgRemoteExec
         mode = 2;
         jip = 0;
         class LW_fnc_requestCampMission {allowedTargets = 2;};
+        class LW_fnc_requestDelegateMission {allowedTargets = 2;};
         class LW_fnc_showMissionOffer {allowedTargets = 1;};
+        class LW_fnc_showDelegationResult {allowedTargets = 1;};
         class LW_fnc_playRadioLine {allowedTargets = 0;};
     };
 };

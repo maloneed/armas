@@ -1,0 +1,3109 @@
+/*
+  Main Dialog - aka the Y-menu
+*/
+
+#include "ids.inc"
+
+class A3A_DummyDialog
+{
+    idd = -1;
+    // Dumbass attempt to stop Arma crashing in map icon code: Preload the damned things.
+    class Controls {
+        class icon_0 : A3A_Picture {
+            text = A3A_Icon_Map_Airport;
+            colorText[] = {1,1,1,0.1};
+            x = 0;
+            y = 0;
+            w = 32*pixelW;
+            h = 32*pixelH;
+        };
+        class icon_1 : icon_0 {
+            text = A3A_Icon_Map_Outpost;
+            x = 32*pixelW;
+        };
+        class icon_2 : icon_0 {
+            text = A3A_Icon_Map_Seaport;
+            x = 64*pixelW;
+        };
+        class icon_3 : icon_0 {
+            text = A3A_Icon_Map_Factory;
+            x = 96*pixelW;
+        };
+        class icon_4 : icon_0 {
+            text = A3A_Icon_Map_Resource;
+            x = 128*pixelW;
+        };
+        class icon_5 : icon_0 {
+            text = A3A_Icon_Map_City;
+            x = 160*pixelW;
+        };
+        class icon_6 : icon_0 {
+            text = A3A_Icon_Map_Roadblock;
+            x = 192*pixelW;
+        };
+        class icon_7 : icon_0 {
+            text = A3A_Icon_Map_Watchpost;
+            x = 224*pixelW;
+        };
+        class icon_8 : icon_0 {
+            text = A3A_Icon_Map_HQ;
+            x = 256*pixelW;
+        };
+        class icon_9 : icon_0 {
+            text = A3A_Icon_Map_Blank;
+            x = 288*pixelW;
+        };
+        class icon_10 : icon_0 {
+            text = A3A_Select_Marker;
+            y = 32*pixelH;
+        };
+    };
+};
+
+class A3A_MainDialog : A3A_TabbedDialog
+{
+    idd = A3A_IDD_MAINDIALOG;
+    onLoad = "[""onLoad""] spawn A3A_GUI_fnc_mainDialog";
+    onUnload = "[""onUnload""] call A3A_GUI_fnc_mainDialog";
+
+    class Controls
+    {
+        class TitlebarText : A3A_TitlebarText
+        {
+            idc = A3A_IDC_MAINDIALOGTITLEBAR;
+            text = $STR_antistasi_dialogs_main_titlebar;
+            x = DIALOG_X;
+            y = DIALOG_Y - 10 * GRID_H;
+            w = DIALOG_W * GRID_W;
+            h = 5 * GRID_H;
+        };
+
+        class TabButtons : A3A_ControlsGroupNoScrollbars
+        {
+            idc = A3A_IDC_MAINDIALOGTABBUTTONS;
+            x = DIALOG_X;
+            y = DIALOG_Y - 5 * GRID_H;
+            w = DIALOG_W * GRID_W;
+            h = 5 * GRID_H;
+
+            class Controls
+            {
+                class PlayerTabButton : A3A_Button
+                {
+                    idc = A3A_IDC_PLAYERTABBUTTON;
+                    text = $STR_antistasi_dialogs_main_player_tab_button;
+                    onButtonClick = "[""switchTab"", [""player""]] call A3A_GUI_fnc_mainDialog;";
+                    x = 0;
+                    y = 0;
+                    w = 30 * GRID_W;
+                    h = 5 * GRID_H;
+                };
+
+                class CommanderTabButton : A3A_Button
+                {
+                    idc = A3A_IDC_COMMANDERTABBUTTON;
+                    text = $STR_antistasi_dialogs_main_commander_tab_button;
+                    onButtonClick = "[""switchTab"", [""commander""]] call A3A_GUI_fnc_mainDialog;";
+                    x = 30 * GRID_W;
+                    y = 0;
+                    w = 30 * GRID_W;
+                    h = 5 * GRID_H;
+                };
+
+                class AdminTabButton : A3A_Button
+                {
+                    idc = A3A_IDC_ADMINTABBUTTON;
+                    text = $STR_antistasi_dialogs_main_admin_tab_button;
+                    onButtonClick = "[""switchTab"", [""admin""]] call A3A_GUI_fnc_mainDialog;";
+                    x = 60 * GRID_W;
+                    y = 0;
+                    w = 30 * GRID_W;
+                    h = 5 * GRID_H;
+                };
+            };
+        };
+
+
+        ///////////////
+        // MAIN TABS //
+        ///////////////
+
+        class PlayerTab : A3A_DefaultControlsGroup
+        {
+            idc = A3A_IDC_PLAYERTAB;
+            show = false;
+
+            class Controls
+            {
+                // Left side button column
+
+                // Undercover
+                class UndercoverIcon : A3A_Picture
+                {
+                    idc = A3A_IDC_UNDERCOVERICON;
+                    text = A3A_Icon_Undercover;
+                    x = 8 * GRID_W;
+                    y = 13 * GRID_H;
+                    w = 8 * GRID_W;
+                    h = 8 * GRID_H;
+                };
+
+                class UndercoverButton : A3A_Button
+                {
+                    idc = A3A_IDC_UNDERCOVERBUTTON;
+                    text = $STR_antistasi_dialogs_main_undercover;
+                    // onButtonClick = "[] call A3A_fnc_goUndercover; closeDialog 0";
+                    sizeEx = GUI_TEXT_SIZE_LARGE;
+                    x = 20 * GRID_W;
+                    y = 11 * GRID_H;
+                    w = 36 * GRID_W;
+                    h = 12 * GRID_H;
+                };
+
+                // Fast Travel
+                class FastTravelIcon : A3A_Picture
+                {
+                    idc = A3A_IDC_FASTTRAVELICON;
+                    text = A3A_Icon_FastTravel;
+                    x = 8 * GRID_W;
+                    y = 34 * GRID_H;
+                    w = 8 * GRID_W;
+                    h = 8 * GRID_H;
+                };
+
+                class FastTravelButton : A3A_Button
+                {
+                    idc = A3A_IDC_FASTTRAVELBUTTON;
+                    text = $STR_antistasi_dialogs_main_fast_travel;
+                    tooltip = $STR_antistasi_dialogs_main_fast_travel_tooltip;
+                    onButtonClick = "[""setHcMode"", [false]] call A3A_GUI_fnc_fastTravelTab; [""switchTab"", [""fasttravel""]] call A3A_GUI_fnc_mainDialog";
+                    sizeEx = GUI_TEXT_SIZE_LARGE;
+                    x = 20 * GRID_W;
+                    y = 32 * GRID_H;
+                    w = 36 * GRID_W;
+                    h = 12 * GRID_H;
+                };
+
+                // Construct
+                class ConstructIcon : A3A_Picture
+                {
+                    idc = A3A_IDC_CONSTRUCTICON;
+                    text = A3A_Icon_Construct;
+                    x = 8 * GRID_W;
+                    y = 55 * GRID_H;
+                    w = 8 * GRID_W;
+                    h = 8 * GRID_H;
+                };
+
+                class ConstructButton : A3A_Button
+                {
+                    idc = A3A_IDC_CONSTRUCTBUTTON;
+                    //text = $STR_antistasi_dialogs_main_construct;
+                    text = $STR_antistasi_dialogs_main_warstatus_main;
+                    onButtonClick = "[""switchTab"", [""warstatus""]] call A3A_GUI_fnc_mainDialog;";
+                    sizeEx = GUI_TEXT_SIZE_LARGE;
+                    x = 20 * GRID_W;
+                    y = 53 * GRID_H;
+                    w = 36 * GRID_W;
+                    h = 12 * GRID_H;
+                };
+
+                // AI Management
+                class AIManagementIcon : A3A_Picture
+                {
+                    idc = A3A_IDC_AIMANAGEMENTICON;
+                    text = A3A_Icon_AI_Management;
+                    x = 8 * GRID_W;
+                    y = 76 * GRID_H;
+                    w = 8 * GRID_W;
+                    h = 8 * GRID_H;
+                };
+
+                class AIManagementButton : A3A_Button
+                {
+                    idc = A3A_IDC_AIMANAGEMENTBUTTON;
+                    text = $STR_antistasi_dialogs_main_ai_management;
+                    onButtonClick = "[""switchTab"", [""aimanagement""]] call A3A_GUI_fnc_mainDialog;";
+                    sizeEx = GUI_TEXT_SIZE_LARGE;
+                    x = 20 * GRID_W;
+                    y = 74 * GRID_H;
+                    w = 36 * GRID_W;
+                    h = 12 * GRID_H;
+                };
+
+
+                // Right side content
+
+                // Player info area
+                class PlayerNameText : A3A_Text
+                {
+                    idc = A3A_IDC_PLAYERNAMETEXT;
+                    text = "";
+                    sizeEx = GUI_TEXT_SIZE_LARGE;
+                    colorBackground[] = A3A_COLOR_BLACK;
+                    x = 70 * GRID_W;
+                    y = 7 * GRID_H;
+                    w = 90 * GRID_W;
+                    h = 6 * GRID_H;
+                };
+
+                class PlayerRankText : A3A_Text
+                {
+                    idc = A3A_IDC_PLAYERRANKTEXT;
+                    colorText[] = A3A_COLOR_TEXT_DARKER;
+                    style = ST_RIGHT;
+                    x = 117 * GRID_W;
+                    y = 8 * GRID_H;
+                    w = 30 * GRID_W;
+                    h = 4 * GRID_H;
+                };
+
+                class PlayerRankPicture : A3A_Picture
+                {
+                    idc = A3A_IDC_PLAYERRANKPICTURE;
+                    colorText[] = A3A_COLOR_TEXT_DARKER;
+                    x = 147 * GRID_W;
+                    y = 8 * GRID_H;
+                    w = 4 * GRID_W;
+                    h = 4 * GRID_H;
+                };
+
+                class AliveLabel : A3A_Text
+                {
+                    idc = -1;
+                    text = $STR_antistasi_dialogs_player_timeAlive;
+                    x = 98 * GRID_W;
+                    y = 17 * GRID_H;
+                    w = 30 * GRID_W;
+                    h = 4 * GRID_H;
+                };
+
+                class AliveText : A3A_Text
+                {
+                    idc = A3A_IDC_ALIVETEXT;
+                    style = ST_RIGHT;
+                    text = "";
+                    x = 130 * GRID_W;
+                    y = 17 * GRID_H;
+                    w = 22 * GRID_W;
+                    h = 4 * GRID_H;
+                };
+
+                class MissionsLabel : A3A_Text
+                {
+                    idc = -1;
+                    text = $STR_antistasi_dialogs_player_missions;
+                    x = 98 * GRID_W;
+                    y = 22 * GRID_H;
+                    w = 30 * GRID_W;
+                    h = 4 * GRID_H;
+                };
+
+                class MissionsText : A3A_Text
+                {
+                    idc = A3A_IDC_MISSIONSTEXT;
+                    style = ST_RIGHT;
+                    text = "";
+                    x = 130 * GRID_W;
+                    y = 22 * GRID_H;
+                    w = 22 * GRID_W;
+                    h = 4 * GRID_H;
+                };
+
+                class KillsLabel : A3A_Text
+                {
+                    idc = A3A_IDC_KILLSLABEL;
+                    text = $STR_antistasi_dialogs_player_kills;
+                    x = 98 * GRID_W;
+                    y = 27 * GRID_H;
+                    w = 30 * GRID_W;
+                    h = 4 * GRID_H;
+                };
+
+                class KillsText : A3A_Text
+                {
+                    idc = A3A_IDC_KILLSTEXT;
+                    style = ST_RIGHT;
+                    text = "";
+                    x = 130 * GRID_W;
+                    y = 27 * GRID_H;
+                    w = 22 * GRID_W;
+                    h = 4 * GRID_H;
+                };
+
+                class CommanderBackground : A3A_Background
+                {
+                    idc = -1;
+                    x = 74 * GRID_W;
+                    y = 17 * GRID_H;
+                    w = 22 * GRID_W;
+                    h = 14 * GRID_H;
+                };
+
+                class CommanderPicture : A3A_Picture
+                {
+                    idc = A3A_IDC_COMMANDERPICTURE;
+                    colorText[] = {1,0.9,0.5,1};
+                    colorShadow[] = A3A_COLOR_BLACK;
+                    shadow = 2;
+                    text = A3A_Icon_PlayerCommander;
+                    x = 79 * GRID_W;
+                    y = 16 * GRID_H;
+                    w = 12 * GRID_W;
+                    h = 12 * GRID_H;
+                };
+
+                class CommanderText : A3A_Text
+                {
+                    idc = A3A_IDC_COMMANDERTEXT;
+                    style = ST_CENTER;
+                    colorText[] = {1,0.9,0.5,1};
+                    colorShadow[] = A3A_COLOR_BLACK;
+                    shadow = 2;
+                    x = 74 * GRID_W;
+                    y = 25 * GRID_H;
+                    w = 22 * GRID_W;
+                    h = 4 * GRID_H;
+                };
+
+                class CommanderButton : A3A_Button
+                {
+                    idc = A3A_IDC_COMMANDERBUTTON;
+                    onButtonClick = "[player, cursorTarget] remoteExecCall [""A3A_fnc_theBossToggleEligibility"", 2];";
+                    x = 74 * GRID_W;
+                    y = 34 * GRID_H;
+                    w = 22 * GRID_W;
+                    h = 12 * GRID_H;
+                };
+
+                class MoneyText : A3A_TextMulti
+                {
+                    idc = A3A_IDC_MONEYTEXT;
+                    text = "";
+                    colorBackground[] = {0,0,0,0.5};
+                    x = 98 * GRID_W;
+                    y = 34 * GRID_H;
+                    w = 30 * GRID_W;
+                    h = 12 * GRID_H;
+                };
+
+                class DonateButton : A3A_ShortcutButton
+                {
+                    idc = A3A_IDC_DONATEBUTTON;
+                    text = $STR_antistasi_dialogs_main_donate;
+                    onButtonClick = "[""switchTab"", [""donate""]] call A3A_GUI_fnc_mainDialog;";
+                    x = 130 * GRID_W;
+                    y = 34 * GRID_H;
+                    w = 22 * GRID_W;
+                    h = 12 * GRID_H;
+                };
+
+                // Hide top bar checkbox
+                class HideTopBarLabel : A3A_Text
+                {
+                    idc = -1;
+                    text = $STR_antistasi_dialogs_main_hide_top_bar;
+                    x = 98 * GRID_W;
+                    y = 47 * GRID_H;
+                    w = 26 * GRID_W;
+                    h = 4 * GRID_H;
+                };
+
+                class HideTopBarCheckBox :A3A_CheckBox
+                {
+                    idc = A3A_IDC_HIDETOPBARCHECKBOX;
+                    onCheckedChanged = "params [""_control"", ""_checked""]; [""uiEvent_hideTopBarCheckBox_checked"", [_checked]] call A3A_GUI_fnc_mainDialog;";
+                    x = 124 * GRID_W;
+                    y = 47 * GRID_H;
+                    w = 4 * GRID_W;
+                    h = 4 * GRID_H;
+                };
+
+                // Context section
+                class ContextLabel : A3A_SectionLabelRight
+                {
+                    idc = A3A_IDC_CONTEXTLABEL;
+                    text = $STR_antistasi_dialogs_context_title;
+                    x = 70 * GRID_W;
+                    y = 53 * GRID_H;
+                    w = 90 * GRID_W;
+                    h = 4 * GRID_H;
+                };
+
+                class NoActionsGroup : A3A_ControlsGroupNoScrollbars
+                {
+                    idc = A3A_IDC_NOACTIONSGROUP;
+                    x = 74 * GRID_W;
+                    y = 64 * GRID_H;
+                    w = 78 * GRID_W;
+                    h = 36 * GRID_H;
+
+                    class controls
+                    {
+                        class NoActionsText : A3A_Text
+                        {
+                            idc = A3A_IDC_NOACTIONSTEXT;
+                            style = ST_CENTER;
+                            text = $STR_antistasi_dialogs_main_no_actions;
+                            colorText[] = {0.7,0.7,0.7,1};
+                            colorBackground[] = {0,0,0,0.5};
+                            x = 0;
+                            y = 0;
+                            w = 78 * GRID_W;
+                            h = 26 * GRID_H;
+                        };
+                    };
+                };
+
+                class ContextGroup : A3A_ControlsGroupNoScrollbars
+                {
+                    idc = A3A_IDC_PLAYERCONTEXTGROUP;
+                    x = 74 * GRID_W;
+                    y = 64 * GRID_H;
+                    w = 78 * GRID_W;
+                    h = 36 * GRID_H;
+
+                    class controls
+                    {
+                        class VehiclePicture : A3A_Picture
+                        {
+                            idc = A3A_IDC_VEHICLEPICTURE;
+                            x = 0 * GRID_W;
+                            y = 0 * GRID_H;
+                            w = 30 * GRID_W;
+                            h = 17 * GRID_H;
+                        };
+
+                        class VehicleNameBackground : A3A_Background
+                        {
+                            idc = A3A_IDC_VEHICLENAMEBACKGROUND;
+                            x = 0;
+                            y = 17 * GRID_H;
+                            w = 30 * GRID_W;
+                            h = 9 * GRID_H;
+                        };
+
+                        class VehicleNameLabel : A3A_TextMulti
+                        {
+                            idc = A3A_IDC_VEHICLENAMELABEL;
+                            style = ST_MULTI + ST_CENTER + ST_NO_RECT;
+                            x = 1 * GRID_W;
+                            // Sub-grid position works here because it's only text with transparent background:
+                            y = 17.5 * GRID_H;
+                            w = 28 * GRID_W;
+                            h = 8 * GRID_H;
+                        };
+
+                        class ContextActionSingle1 : A3A_Button
+                        {
+                            idc = A3A_IDC_CONTEXTSINGLE1BUTTON;
+                            x = 32 * GRID_W;
+                            y = 0 * GRID_H;
+                            w = 22 * GRID_W;
+                            h = 12 * GRID_H;
+                        };
+
+                        class ContextActionSingle2 : A3A_Button
+                        {
+                            idc = A3A_IDC_CONTEXTSINGLE2BUTTON;
+                            x = 56 * GRID_W;
+                            y = 0 * GRID_H;
+                            w = 22 * GRID_W;
+                            h = 12 * GRID_H;
+                        };
+
+                        class ContextActionSingle3 : A3A_Button
+                        {
+                            idc = A3A_IDC_CONTEXTSINGLE3BUTTON;
+                            x = 32 * GRID_W;
+                            y = 14 * GRID_H;
+                            w = 22 * GRID_W;
+                            h = 12 * GRID_H;
+                        };
+
+                        class ContextActionSingle4 : A3A_ShortcutButton
+                        { // puedes ajustar estilo en SQF?
+                            idc = A3A_IDC_CONTEXTSINGLE4BUTTON;
+                            x = 56 * GRID_W;
+                            y = 14 * GRID_H;
+                            w = 22 * GRID_W;
+                            h = 12 * GRID_H;
+                        };
+
+                        class ContextActionHoriz1 : A3A_Button
+                        {
+                            idc = A3A_IDC_CONTEXTHORIZ1BUTTON;
+                            x = 32 * GRID_W;
+                            y = 0 * GRID_H;
+                            w = 46 * GRID_W;
+                            h = 12 * GRID_H;
+                        };
+
+                        class ContextActionHoriz2 : A3A_Button
+                        {
+                            idc = A3A_IDC_CONTEXTHORIZ2BUTTON;
+                            x = 32 * GRID_W;
+                            y = 14 * GRID_H;
+                            w = 46 * GRID_W;
+                            h = 12 * GRID_H;
+                        };
+                    };
+                };
+                // End of playerTab controlsGroup content
+            };
+        };
+
+        // Map misbehaves inside controlsGroups, hence this is placed outside
+        // See controls.hpp for details
+        class CommanderMap : A3A_MapControl
+        {
+            idc = A3A_IDC_COMMANDERMAP;
+            onMouseButtonClick = "[""commanderMapClicked"", [[_this select 2, _this select 3]]] call A3A_GUI_fnc_commanderTab";
+            x = CENTER_X(DIALOG_W) + 68 * GRID_W;
+            y = CENTER_Y(DIALOG_H) + 8 * GRID_H;
+            w = 84 * GRID_W;
+            h = 84 * GRID_H;
+
+            // Hide map markers
+            showMarkers = false;
+
+            // Fade satellite texture a bit
+            maxSatelliteAlpha = 0.75;
+            alphaFadeStartScale = 3.0;
+            alphaFadeEndScale = 3.0;
+
+            // Set zoom levels
+            scaleMin = 0.01; // 0.2 = Smallest scale showing the 100m grid
+            scaleDefault = 0.325; // 0.325 = Largest scale forests still are visible
+            scaleMax = 1; // 2 = Max zoom level
+        };
+
+        class CommanderTab : A3A_DefaultControlsGroup
+        {
+            idc = A3A_IDC_COMMANDERTAB;
+            // Width set to smaller than usual to avoid an issue where
+            // pressing anything other than the map would (invisibly) cover up the
+            // map control, making it unclickable
+            w = 68 * GRID_W;
+            show = false;
+
+            class Controls
+            {
+                // Main group list
+                class MultipleGroupsBackground : A3A_Background
+                {
+                    idc = A3A_IDC_HCMULTIPLEGROUPSBACKGROUND;
+                    x = 8 * GRID_W;
+                    y = 8 * GRID_H;
+                    w = 54 * GRID_W;
+                    h = 80 * GRID_H;
+                };
+
+                class MultipleGroupsLabel : A3A_SectionLabelRight
+                {
+                    text = $STR_antistasi_dialogs_main_hc_groups_label;
+                    idc = A3A_IDC_HCMULTIPLEGROUPSLABEL;
+                    x = 8 * GRID_W;
+                    y = 8 * GRID_H;
+                    w = 54 * GRID_W;
+                    h = 4 * GRID_H;
+                };
+
+                class MultipleGroupsView : A3A_ControlsGroupNoHScrollbars
+                {
+                    idc = A3A_IDC_HCMULTIPLEGROUPSVIEW;
+                    x = 8 * GRID_W;
+                    y = 13 * GRID_H;
+                    w = 58 * GRID_W;
+                    h = 75 * GRID_H;
+
+                    class controls {}; // Intentionally empty, controls generated by script
+                };
+
+                // Viewing a single group
+                class SingleGroupView : A3A_ControlsGroupNoScrollbars
+                {
+                    idc = A3A_IDC_HCSINGLEGROUPVIEW;
+                    x = 8 * GRID_W;
+                    y = 8 * GRID_H;
+                    w = 54 * GRID_W;
+                    h = 80 * GRID_H;
+
+                    class controls
+                    {
+                        class GroupNameLabel : A3A_Button_Left
+                        {
+                            idc = A3A_IDC_HCGROUPNAME;
+                            text = "";
+                            onButtonClick = "[""groupNameLabelClicked""] call A3A_GUI_fnc_commanderTab";
+                            x = 0;
+                            y = 0;
+                            w = 42 * GRID_W;
+                            h = 6 * GRID_H;
+                        };
+
+                        class FastTravelHCButton : A3A_ShortcutButton
+                        {
+                            idc = A3A_IDC_HCFASTTRAVELBUTTON;
+                            textureNoShortcut = A3A_Icon_FastTravel;
+                            tooltip = $STR_antistasi_dialogs_main_fast_travel;
+                            onButtonClick = "[""groupFastTravelButtonClicked""] call A3A_GUI_fnc_commanderTab";
+                            x = 42 * GRID_W;
+                            y = 0 * GRID_H;
+                            w = 6 * GRID_W;
+                            h = 6 * GRID_H;
+
+                            class ShortcutPos
+                            {
+                            	left = 0;
+                            	top = 0;
+                            	w = 6 * GRID_W;
+                            	h = 6 * GRID_H;
+                            };
+                        };
+
+                        class RemoteControlHCButton : A3A_ShortcutButton
+                        {
+                            idc = -1;
+                            textureNoShortcut = A3A_Icon_Remotecontrol;
+                            tooltip = $STR_antistasi_dialogs_main_remote_control_tooltip;
+                            onButtonClick = "[""groupRemoteControlButtonClicked""] call A3A_GUI_fnc_commanderTab";
+                            x = 48 * GRID_W;
+                            y = 0 * GRID_H;
+                            w = 6 * GRID_W;
+                            h = 6 * GRID_H;
+
+                            class ShortcutPos
+                            {
+                            	left = 0;
+                            	top = 0;
+                            	w = 6 * GRID_W;
+                            	h = 6 * GRID_H;
+                            };
+                        };
+
+                        class GroupBackground : A3A_Background
+                        {
+                            idc = -1;
+                            x = 0;
+                            y = 6 * GRID_H;
+                            w = 54 * GRID_W;
+                            h = 62 * GRID_H;
+                        };
+
+                        class IconsControlsGroup : A3A_ControlsGroupNoScrollbars
+                        {
+                            idc = A3A_IDC_HCGROUPSTATUSICONS;
+                            x = 22 * GRID_W;
+                            y = 8 * GRID_H;
+                            w = 30 * GRID_W;
+                            h = 6 * GRID_H;
+
+                            class controls {}; // Intentionally empty, controls generated by script
+                        };
+
+                        class GroupUnitCountIcon : A3A_Picture
+                        {
+                            idc = -1;
+                            text = A3A_Icon_GroupUnitCount;
+                            tooltip = $STR_antistasi_dialogs_main_hc_unit_count_tooltip;
+                            x = 2 * GRID_W;
+                            y = 8 * GRID_H;
+                            w = 4 * GRID_W;
+                            h = 4 * GRID_H;
+                        };
+
+                        class GroupUnitCountText : A3A_Text
+                        {
+                            idc = A3A_IDC_HCGROUPCOUNT;
+                            text = "10 / 10";
+                            tooltip = $STR_antistasi_dialogs_main_hc_unit_count_tooltip;
+                            x = 6 * GRID_W;
+                            y = 8 * GRID_H;
+                            w = 16 * GRID_W;
+                            h = 4 * GRID_H;
+                        };
+
+                        class GroupCombatModeLabel : A3A_Text
+                        {
+                            idc = -1;
+                            text = $STR_antistasi_dialogs_main_hc_combat_mode;
+                            x = 0;
+                            y = 15 * GRID_H;
+                            w = 24 * GRID_W;
+                            h = 4 * GRID_H;
+                        };
+
+                        class GroupCombatModeText : A3A_Text
+                        {
+                            idc = A3A_IDC_HCGROUPCOMBATMODE;
+                            style = ST_RIGHT;
+                            text = "";
+                            x = 28 * GRID_W;
+                            y = 15 * GRID_H;
+                            w = 24 * GRID_W;
+                            h = 4 * GRID_H;
+                        };
+
+                        class GroupVehicleLabel : A3A_Text
+                        {
+                            idc = -1;
+                            text = $STR_antistasi_dialogs_main_hc_vehicle;
+                            x = 0;
+                            y = 20 * GRID_H;
+                            w = 24 * GRID_W;
+                            h = 4 * GRID_H;
+                        };
+
+                        class GroupVehicleText : A3A_StructuredText
+                        {
+                            idc = A3A_IDC_HCGROUPVEHICLE;
+                            // style = ST_RIGHT + ST_MULTI;
+                            x = 28 * GRID_W;
+                            y = 20 * GRID_H;
+                            w = 24 * GRID_W;
+                            h = 8 * GRID_H;
+                        };
+
+
+                        class FireMissionButton : A3A_ShortcutButton
+                        {
+                            idc = A3A_IDC_HCFIREMISSIONBUTTON;
+                            text = $STR_antistasi_dialogs_main_hc_fire_mission_button;
+                            onButtonClick = "[""updateFireMissionView""] call A3A_GUI_fnc_commanderTab;";
+                            x = 28 * GRID_W;
+                            y = 30 * GRID_H;
+                            w = 24 * GRID_W;
+                            h = 8 * GRID_H;
+                        };
+
+                        class MountButton : A3A_Button
+                        {
+                            idc = -1;
+                            text = $STR_antistasi_dialogs_main_hc_mount; // TODO UI-update: update on mount status
+                            onButtonClick = "[""groupMountButtonClicked""] call A3A_GUI_fnc_commanderTab";
+                            x = 2 * GRID_H;
+                            y = 40 * GRID_H;
+                            w = 24 * GRID_W;
+                            h = 12 * GRID_H;
+                        };
+
+                        class AddVehicleButton : A3A_Button
+                        {
+                            idc = -1;
+                            text = $STR_antistasi_dialogs_main_hc_add_vehicle;
+                            onButtonClick = "[""groupAddVehicleButtonClicked""] call A3A_GUI_fnc_commanderTab";
+                            x = 2 * GRID_H;
+                            y = 54 * GRID_H;
+                            w = 24 * GRID_W;
+                            h = 12 * GRID_H;
+                        };
+
+                        class GarrisonButton : A3A_Button
+                        {
+                            idc = -1;
+                            text = $STR_antistasi_dialogs_main_hc_garrison;
+                            onButtonClick = "[""groupGarrisonButtonClicked""] call A3A_GUI_fnc_commanderTab";
+                            x = 28 * GRID_W;
+                            y = 40 * GRID_H;
+                            w = 24 * GRID_W;
+                            h = 12 * GRID_H;
+                        };
+
+                        class DismissButton : A3A_Button
+                        {
+                            idc = -1;
+                            text = $STR_antistasi_dialogs_main_hc_dismiss;
+                            onButtonClick = "[""groupDismissButtonClicked""] call A3A_GUI_fnc_commanderTab";
+                            x = 28 * GRID_W;
+                            y = 54 * GRID_H;
+                            w = 24 * GRID_W;
+                            h = 12 * GRID_H;
+                        };
+                    }; // End of SingleGroupView controls
+                };
+
+
+                // Fire mission view
+                class FireMissionControlsGroup : A3A_ControlsGroupNoScrollbars
+                {
+                    idc = A3A_IDC_FIREMISSONCONTROLSGROUP;
+                    x = 8 * GRID_W;
+                    y = 8 * GRID_H;
+                    w = 54 * GRID_W;
+                    h = 68 * GRID_H;
+
+                    class controls
+                    {
+                        // Label also works as a back button
+                        class FireMissionLabel : A3A_Button_Left
+                        {
+                            idc = -1;
+                            text = $STR_antistasi_dialogs_main_hc_fire_mission_label;
+                            onButtonClick = "[""update""] call A3A_GUI_fnc_commanderTab;";
+                            x = 0;
+                            y = 0;
+                            w = 54 * GRID_W;
+                            h = 6 * GRID_H;
+                        };
+
+                        class FireMissionBackground : A3A_Background
+                        {
+                            idc = -1;
+                            x = 0;
+                            y = 6 * GRID_H;
+                            w = 54 * GRID_W;
+                            h = 62 * GRID_H;
+                        };
+
+                        class AmmoLabel : A3A_SectionLabelRight
+                        {
+                            idc = -1;
+                            text = $STR_antistasi_dialogs_main_hc_fire_mission_ammo;
+                            x = 2 * GRID_W;
+                            y = 8 * GRID_H;
+                            w = 50 * GRID_W;
+                            h = 4 * GRID_H;
+                        };
+
+                        class ShellTypeLabel : A3A_Text
+                        {
+                            idc = -1;
+                            text = $STR_antistasi_dialogs_main_hc_fire_mission_shell_type_label;
+                            colorBackground[] = A3A_COLOR_BACKGROUND;
+                            x = 2 * GRID_W;
+                            y = 13 * GRID_H;
+                            w = 20 * GRID_W;
+                            h = 4 * GRID_H;
+                        };
+
+                        class ShellTypeBox: A3A_ComboBox_Small 
+                        {
+                            idc = A3A_IDC_SHELLTYPEBOX;
+                            onLBSelChanged = "[""fireMissionSelectionChanged"",[""roundType""]] call A3A_GUI_fnc_commanderTab;";
+                            x = 22 * GRID_W;
+                            y = 13 * GRID_H;
+                            w = 30 * GRID_W;
+                            h = 4 * GRID_H;
+                        };
+
+                        class AttributeLabel : A3A_Text
+                        {
+                            idc = A3A_IDC_ATTRIBUTELABEL;
+                            text = "";
+                            colorBackground[] = A3A_COLOR_BACKGROUND;
+                            x = 2 * GRID_W;
+                            y = 18 * GRID_H;
+                            w = 25 * GRID_W;
+                            h = 4 * GRID_H;
+                        };
+
+                        class AttributeText : A3A_Text
+                        {
+                            idc = A3A_IDC_ATTRIBUTETEXT;
+                            text = "";
+                            colorBackground[] = A3A_COLOR_BACKGROUND;
+                            style = ST_RIGHT;
+                            x = 27 * GRID_W;
+                            y = 18 * GRID_H;
+                            w = 25 * GRID_W;
+                            h = 4 * GRID_H;
+                        };
+
+                        class MissionTypeControlsGroup : A3A_ControlsGroupNoScrollbars
+                        {
+                            idc = -1;
+                            x = 2 * GRID_W;
+                            y = 27 * GRID_H;
+                            w = 50 * GRID_W;
+                            h = 8 * GRID_H;
+
+                            class controls
+                            {
+                                class MissionTypeLabel : A3A_Text
+                                {
+                                    idc = -1;
+                                    text = $STR_antistasi_dialogs_main_hc_fire_mission_type_label;
+                                    colorBackground[] = A3A_COLOR_BACKGROUND;
+                                    x = 0 * GRID_W;
+                                    y = 0 * GRID_H;
+                                    w = 20 * GRID_W;
+                                    h = 4 * GRID_H;
+                                };
+
+                                class PointStrikeButton : A3A_Button
+                                {
+                                    idc = A3A_IDC_POINTSTRIKEBUTTON;
+                                    text = $STR_antistasi_dialogs_main_hc_fire_mission_type_point;
+                                    sizeEx = GUI_TEXT_SIZE_SMALL;
+                                    tooltip = $STR_antistasi_dialogs_main_hc_fire_mission_desc_point;
+                                    onButtonClick = "[""fireMissionSelectionChanged"",[""point""]] call A3A_GUI_fnc_commanderTab;";
+                                    x = 20 * GRID_W;
+                                    y = 0 * GRID_H;
+                                    w = 15 * GRID_W;
+                                    h = 4 * GRID_H;
+
+                                    // Colors are a bit different on these because we use them as radio buttons
+                                    // We disable them to show that they are active
+                                    colorDisabled[] = A3A_COLOR_BUTTON_TEXT;
+                                    colorBackgroundDisabled[] = A3A_COLOR_BUTTON_ACTIVE;
+                                };
+
+                                class BarrageButton : A3A_Button
+                                {
+                                    idc = A3A_IDC_BARRAGEBUTTON;
+                                    text = $STR_antistasi_dialogs_main_hc_fire_mission_type_barrage;
+                                    sizeEx = GUI_TEXT_SIZE_SMALL;
+                                    tooltip = $STR_antistasi_dialogs_main_hc_fire_mission_desc_barrage;
+                                    onButtonClick = "[""fireMissionSelectionChanged"",[""barrage""]] call A3A_GUI_fnc_commanderTab;";
+                                    x = 35 * GRID_W;
+                                    y = 0 * GRID_H;
+                                    w = 15 * GRID_W;
+                                    h = 4 * GRID_H;
+
+                                    // Colors, see point button for clarification
+                                    colorDisabled[] = A3A_COLOR_BUTTON_TEXT;
+                                    colorBackgroundDisabled[] = A3A_COLOR_BUTTON_ACTIVE;
+                                };
+
+                                class SuppressButton : A3A_Button
+                                {
+                                    idc = A3A_IDC_SUPPRESSBUTTON;
+                                    text = $STR_antistasi_dialogs_main_hc_fire_mission_type_suppress;
+                                    sizeEx = GUI_TEXT_SIZE_SMALL;
+                                    tooltip = $STR_antistasi_dialogs_main_hc_fire_mission_desc_suppress;
+                                    onButtonClick = "[""fireMissionSelectionChanged"",[""suppress""]] call A3A_GUI_fnc_commanderTab;";
+                                    x = 20 * GRID_W;
+                                    y = 4 * GRID_H;
+                                    w = 15 * GRID_W;
+                                    h = 4 * GRID_H;
+
+                                    // Colors, see point button for clarification
+                                    colorDisabled[] = A3A_COLOR_BUTTON_TEXT;
+                                    colorBackgroundDisabled[] = A3A_COLOR_BUTTON_ACTIVE;
+                                };
+
+                                class ContButton : A3A_Button
+                                {
+                                    idc = A3A_IDC_CONTBUTTON;
+                                    text = $STR_antistasi_dialogs_main_hc_fire_mission_type_cont;
+                                    sizeEx = GUI_TEXT_SIZE_SMALL;
+                                    tooltip = $STR_antistasi_dialogs_main_hc_fire_mission_desc_cont;
+                                    onButtonClick = "[""fireMissionSelectionChanged"",[""cont""]] call A3A_GUI_fnc_commanderTab;";
+                                    x = 35 * GRID_W;
+                                    y = 4 * GRID_H;
+                                    w = 15 * GRID_W;
+                                    h = 4 * GRID_H;
+
+                                    // Colors, see point button for clarification
+                                    colorDisabled[] = A3A_COLOR_BUTTON_TEXT;
+                                    colorBackgroundDisabled[] = A3A_COLOR_BUTTON_ACTIVE;
+                                };
+                            };
+                        };
+
+                        class RoundsControlsGroup : A3A_ControlsGroupNoScrollbars
+                        {
+                            idc = A3A_IDC_ROUNDSCONTROLSGROUP;
+                            x = 2 * GRID_W;
+                            y = 37 * GRID_H;
+                            w = 50 * GRID_W;
+                            h = 4 * GRID_H;
+
+                            class controls
+                            {
+                                class RoundsLabel : A3A_Text
+                                {
+                                    idc = -1;
+                                    text = $STR_antistasi_dialogs_main_hc_fire_mission_rounds_label;
+                                    colorBackground[] = A3A_COLOR_BACKGROUND;
+                                    x = 0 * GRID_W;
+                                    y = 0 * GRID_H;
+                                    w = 20 * GRID_W;
+                                    h = 4 * GRID_H;
+                                };
+
+                                class RoundsEditbox : A3A_Edit
+                                {
+                                    idc = A3A_IDC_ROUNDSEDITBOX;
+                                    text = "0";
+                                    sizeEx = GUI_TEXT_SIZE_SMALL;
+                                    style = ST_RIGHT + ST_NO_RECT;
+                                    onLoad = "_this#0 ctrlEnable false";
+                                    colorDisabled[] = A3A_COLOR_TEXT;
+                                    colorBackground[] = A3A_COLOR_BLACK;
+                                    x = 20 * GRID_W;
+                                    y = 0 * GRID_H;
+                                    w = 22 * GRID_W;
+                                    h = 4 * GRID_H;
+                                };
+
+                                class AddRoundsButton : A3A_Button
+                                {
+                                    idc = A3A_IDC_ADDROUNDSBUTTON;
+                                    text = "+";
+                                    onButtonClick = "[""fireMissionSelectionChanged"",[""addround""]] call A3A_GUI_fnc_commanderTab;";
+                                    x = 42 * GRID_W;
+                                    y = 0 * GRID_H;
+                                    w = 4 * GRID_W;
+                                    h = 4 * GRID_H;
+                                };
+
+                                class SubRoundsButton : A3A_Button
+                                {
+                                    idc = A3A_IDC_SUBROUNDSBUTTON;
+                                    text = "-";
+                                    onButtonClick = "[""fireMissionSelectionChanged"",[""subround""]] call A3A_GUI_fnc_commanderTab;";
+                                    x = 46 * GRID_W;
+                                    y = 0 * GRID_H;
+                                    w = 4 * GRID_W;
+                                    h = 4 * GRID_H;
+                                };
+                            };
+                        };
+
+                        class StartPositionControlsGroup : A3A_ControlsGroupNoScrollbars
+                        {
+                            idc = A3A_IDC_STARTPOSITIONCONTROLSGROUP;
+                            x = 2 * GRID_W;
+                            y = 42 * GRID_H;
+                            w = 50 * GRID_W;
+                            h = 4 * GRID_H;
+
+                            class controls
+                            {
+                                class StartPositionLabel : A3A_Text
+                                {
+                                    idc = A3A_IDC_STARTPOSITIONLABEL;
+                                    text = $STR_antistasi_dialogs_main_hc_fire_mission_position_label;
+                                    colorBackground[] = A3A_COLOR_BACKGROUND;
+                                    x = 0 * GRID_W;
+                                    y = 0 * GRID_H;
+                                    w = 20 * GRID_W;
+                                    h = 4 * GRID_H;
+                                };
+
+                                class StartPositionEditbox : A3A_Edit
+                                {
+                                    idc = A3A_IDC_STARTPOSITIONEDITBOX;
+                                    text = "";
+                                    sizeEx = GUI_TEXT_SIZE_SMALL;
+                                    style = ST_RIGHT + ST_NO_RECT;
+                                    onLoad = "_this#0 ctrlEnable false";
+                                    colorDisabled[] = A3A_COLOR_TEXT;
+                                    colorBackground[] = A3A_COLOR_BLACK;
+                                    x = 20 * GRID_W;
+                                    y = 0 * GRID_H;
+                                    w = 22 * GRID_W;
+                                    h = 4 * GRID_H;
+                                };
+
+                                class SetStartPositionButton : A3A_Button
+                                {
+                                    idc = -1;
+                                    text = $STR_antistasi_dialogs_main_hc_fire_mission_set;
+                                    sizeEx = GUI_TEXT_SIZE_SMALL;
+                                    onButtonClick = "[""fireMissionSelectionChanged"",[""setstart""]] call A3A_GUI_fnc_commanderTab;";
+                                    x = 42 * GRID_W;
+                                    y = 0 * GRID_H;
+                                    w = 8 * GRID_W;
+                                    h = 4 * GRID_H;
+                                };
+                            };
+                        };
+
+                        class EndPositionControlsGroup : A3A_ControlsGroupNoScrollbars
+                        {
+                            idc = A3A_IDC_ENDPOSITIONCONTROLSGROUP;
+                            x = 2 * GRID_W;
+                            y = 47 * GRID_H;
+                            w = 50 * GRID_W;
+                            h = 4 * GRID_H;
+
+                            class controls
+                            {
+                                class EndPositionLabel : A3A_Text
+                                {
+                                    idc = A3A_IDC_ENDPOSITIONLABEL;
+                                    text = $STR_antistasi_dialogs_main_hc_fire_mission_position_end_label;
+                                    colorBackground[] = A3A_COLOR_BACKGROUND;
+                                    x = 0 * GRID_W;
+                                    y = 0 * GRID_H;
+                                    w = 20 * GRID_W;
+                                    h = 4 * GRID_H;
+                                };
+
+                                class EndPositionEditbox : A3A_Edit
+                                {
+                                    idc = A3A_IDC_ENDPOSITIONEDITBOX;
+                                    text = "";
+                                    sizeEx = GUI_TEXT_SIZE_SMALL;
+                                    style = ST_RIGHT + ST_NO_RECT;
+                                    onLoad = "_this#0 ctrlEnable false";
+                                    colorDisabled[] = A3A_COLOR_TEXT;
+                                    colorBackground[] = A3A_COLOR_BLACK;
+                                    x = 20 * GRID_W;
+                                    y = 0 * GRID_H;
+                                    w = 22 * GRID_W;
+                                    h = 4 * GRID_H;
+                                };
+
+                                class SetEndPositionButton : A3A_Button
+                                {
+                                    idc = -1;
+                                    text = $STR_antistasi_dialogs_main_hc_fire_mission_set;
+                                    sizeEx = GUI_TEXT_SIZE_SMALL;
+                                    onButtonClick = "[""fireMissionSelectionChanged"",[""setend""]] call A3A_GUI_fnc_commanderTab;";
+                                    x = 42 * GRID_W;
+                                    y = 0 * GRID_H;
+                                    w = 8 * GRID_W;
+                                    h = 4 * GRID_H;
+                                };
+                            };
+                        };
+
+                        class RadiusControlsGroup : A3A_ControlsGroupNoScrollbars
+                        {
+                            idc = A3A_IDC_RADIUSCONTROLSGROUP;
+                            x = 2 * GRID_W;
+                            y = 47 * GRID_H;
+                            w = 50 * GRID_W;
+                            h = 4 * GRID_H;
+
+                            class controls
+                            {
+                                class RadiusLabel : A3A_Text
+                                {
+                                    idc = A3A_IDC_RADIUSLABEL;
+                                    text = "Radius";
+                                    colorBackground[] = A3A_COLOR_BACKGROUND;
+                                    x = 0 * GRID_W;
+                                    y = 0 * GRID_H;
+                                    w = 20 * GRID_W;
+                                    h = 4 * GRID_H;
+                                };
+
+                                class RadiusEditbox : A3A_Edit
+                                {
+                                    idc = A3A_IDC_RADIUSEDITBOX;
+                                    text = "";
+                                    sizeEx = GUI_TEXT_SIZE_SMALL;
+                                    style = ST_RIGHT + ST_NO_RECT;
+                                    onLoad = "_this#0 ctrlEnable false";
+                                    colorDisabled[] = A3A_COLOR_TEXT;
+                                    colorBackground[] = A3A_COLOR_BLACK;
+                                    x = 20 * GRID_W;
+                                    y = 0 * GRID_H;
+                                    w = 22 * GRID_W;
+                                    h = 4 * GRID_H;
+                                };
+
+                                class AddRadiusButton : A3A_Button
+                                {
+                                    idc = A3A_IDC_ADDROUNDSBUTTON;
+                                    text = "+";
+                                    onButtonClick = "[""fireMissionSelectionChanged"",[""addradius""]] call A3A_GUI_fnc_commanderTab;";
+                                    x = 42 * GRID_W;
+                                    y = 0 * GRID_H;
+                                    w = 4 * GRID_W;
+                                    h = 4 * GRID_H;
+                                };
+
+                                class SubRadiusButton : A3A_Button
+                                {
+                                    idc = A3A_IDC_SUBROUNDSBUTTON;
+                                    text = "-";
+                                    onButtonClick = "[""fireMissionSelectionChanged"",[""subradius""]] call A3A_GUI_fnc_commanderTab;";
+                                    x = 46 * GRID_W;
+                                    y = 0 * GRID_H;
+                                    w = 4 * GRID_W;
+                                    h = 4 * GRID_H;
+                                };
+                            };
+                        };
+
+                        class TimingControlsGroup : A3A_ControlsGroupNoScrollbars
+                        {
+                            idc = A3A_IDC_TIMINGCONTROLSGROUP;
+                            x = 2 * GRID_W;
+                            y = 47 * GRID_H;
+                            w = 50 * GRID_W;
+                            h = 4 * GRID_H;
+
+                            class controls
+                            {
+                                class TimingLabel : A3A_Text
+                                {
+                                    idc = A3A_IDC_TIMINGLABEL;
+                                    text = "Repeat Time";
+                                    colorBackground[] = A3A_COLOR_BACKGROUND;
+                                    x = 0 * GRID_W;
+                                    y = 0 * GRID_H;
+                                    w = 20 * GRID_W;
+                                    h = 4 * GRID_H;
+                                };
+
+                                class TimingEditBox : A3A_Edit
+                                {
+                                    idc = A3A_IDC_TIMINGEDITBOX;
+                                    text = "";
+                                    sizeEx = GUI_TEXT_SIZE_SMALL;
+                                    style = ST_RIGHT + ST_NO_RECT;
+                                    onLoad = "_this#0 ctrlEnable false";
+                                    colorDisabled[] = A3A_COLOR_TEXT;
+                                    colorBackground[] = A3A_COLOR_BLACK;
+                                    x = 20 * GRID_W;
+                                    y = 0 * GRID_H;
+                                    w = 10 * GRID_W;
+                                    h = 4 * GRID_H;
+                                };
+
+                                class TimingEditSlider : A3A_Slider
+                                {
+                                    idc = A3A_IDC_TIMINGEDITSLIDER;
+                                    x = 30 * GRID_W;
+                                    y = 0 * GRID_H;
+                                    w = 20 * GRID_W;
+                                    h = 4 * GRID_H;
+                                    onSliderPosChanged = "[""fireMissionSelectionChanged"",[""edittiming""]] call A3A_GUI_fnc_commanderTab;";
+                                };
+                            };
+                        };
+
+                        class FireButton : A3A_Button
+                        {
+                            idc = A3A_IDC_FIREBUTTON;
+                            text = $STR_antistasi_dialogs_main_hc_fire_mission_fire_button;
+                            onbuttonClick = "[""fireMissionButtonClicked""] call A3A_GUI_fnc_commanderTab; closeDialog 0;";
+                            x = 17 * GRID_W;
+                            y = 56 * GRID_H;
+                            w = 20 * GRID_W;
+                            h = 8 * GRID_H;
+                        };
+
+                    };
+                };
+
+                class NoRadioControlsGroup : A3A_ControlsGroupNoScrollbars
+                {
+                    idc = A3A_IDC_NORADIOCONTROLSGROUP;
+                    colorBackground[] = A3A_COLOR_BACKGROUND;
+                    x = 8 * GRID_W;
+                    y = 8 * GRID_H;
+                    w = 54 * GRID_W;
+                    h = 54 * GRID_H;
+
+                    class controls
+                    {
+                        class NoRadioBackground : A3A_Background
+                        {
+                            idc = -1;
+                            x = 0 * GRID_W;
+                            y = 0 * GRID_H;
+                            w = 54 * GRID_W;
+                            h = 54 * GRID_H;
+                        };
+
+                        class NoRadioIcon : A3A_Picture
+                        {
+                            idc = -1;
+                            text = A3A_Icon_AT_Minefield;
+                            colorText[] = A3A_COLOR_BUTTON_BACKGROUND_DISABLED;
+                            x = 15 * GRID_W;
+                            y = 15 * GRID_H;
+                            w = 24 * GRID_W;
+                            h = 24 * GRID_H;
+                        };
+
+                        class NoRadioText : A3A_Text
+                        {
+                            idc = -1;
+                            style = ST_CENTER;
+                            text = $STR_antistasi_dialogs_main_commander_no_radio;
+                            colorText[] = A3A_COLOR_BUTTON_BACKGROUND_DISABLED;
+                            sizeEx = GUI_TEXT_SIZE_LARGE;
+                            x = 0 * GRID_W;
+                            y = 39 * GRID_H;
+                            w = 54 * GRID_W;
+                            h = 6 * GRID_H;
+                        };
+                    };
+                };
+
+                class HCSquadsButton : A3A_Button
+                {
+                    idc = A3A_IDC_HCSQUADSBUTTON;
+                    text = $STR_antistasi_dialogs_main_hc_squads_button;
+                    onButtonClick = "[""updateMultipleGroupsView""] call A3A_GUI_fnc_commanderTab;";
+                    x = 10 * GRID_W;
+                    y = 8 * GRID_H;
+                    w = 50 * GRID_W;
+                    h = 24 * GRID_H;
+                };
+
+                class AccessGarrisonsButton : A3A_Button
+                {
+                    idc = A3A_IDC_ACCESSGARRISONSBUTTON;
+                    text = $STR_antistasi_dialogs_main_garrisons_button;
+                    onButtonClick = "[""garrisonButtonClicked""] call A3A_GUI_fnc_commanderTab;";
+                    x = 10 * GRID_W;
+                    y = 38 * GRID_H;
+                    w = 24 * GRID_W;
+                    h = 12 * GRID_H;
+                };
+
+                class PersistentSaveButton : A3A_ShortcutButton
+                {
+                    idc = A3A_IDC_PERSISTENTSAVECMDBUTTON;
+                    text = $STR_antistasi_dialogs_main_persistent_save_button;
+                    onButtonClick = "[""persistentSaveButtonClicked""] call A3A_GUI_fnc_commanderTab;";
+                    x = 36 * GRID_W;
+                    y = 38 * GRID_H;
+                    w = 24 * GRID_W;
+                    h = 12 * GRID_H;
+                };
+
+                class RecruitSquadButton : A3A_ShortcutButton
+                {
+                    idc = A3A_IDC_RECRUITSQUADCMDBUTTON;
+                    text = $STR_antistasi_dialogs_main_recruit_squad_button;
+                    onButtonClick = "[] spawn {closeDialog 0; sleep 0.01; createDialog ""A3A_RecruitSquadDialog""};";
+                    x = 10 * GRID_W;
+                    y = 52 * GRID_H;
+                    w = 24 * GRID_W;
+                    h = 12 * GRID_H;
+                };
+
+                class MissionRequestButton : A3A_ShortcutButton
+                {
+                    idc = A3A_IDC_MISSIONREQUESTBUTTON;
+                    text = "Request Mission";
+                    onButtonClick = "[] spawn {closeDialog 0; sleep 0.01; createDialog ""A3A_RequestMissionDialog""};";
+                    x = 36 * GRID_W;
+                    y = 52 * GRID_H;
+                    w = 24 * GRID_W;
+                    h = 12 * GRID_H;
+                };
+
+                class CustomizeLoadoutsButton : A3A_ShortcutButton
+                {
+                    idc = A3A_IDC_CUSTOMIZELOADOUTSBUTTON;
+                    text = $STR_antistasi_dialogs_main_customize_loadouts_button;
+                    onButtonClick = "[] spawn {closeDialog 0; sleep 0.01; createDialog ""A3A_customLoadoutsDialog""};";
+                    x = 10 * GRID_W;
+                    y = 66 * GRID_H;
+                    w = 24 * GRID_W;
+                    h = 12 * GRID_H;
+                };
+
+                class ArsenalLimitsButton : A3A_ShortcutButton
+                {
+                    idc = A3A_IDC_ARSENALLIMITSBUTTON;
+                    text = $STR_antistasi_dialogs_main_arsenal_limits_button;
+                    onButtonClick = "[] spawn {closeDialog 0; sleep 0.01; createDialog ""A3A_ArsenalLimitsDialog""};";
+                    x = 36 * GRID_W;
+                    y = 66 * GRID_H;
+                    w = 24 * GRID_W;
+                    h = 12 * GRID_H;
+                };
+
+                class AirSupportButton : A3A_Button
+                {
+                    idc = A3A_IDC_AIRSUPPORTBUTTON;
+                    text = $STR_antistasi_dialogs_main_air_support_button;
+                    onButtonClick = "[""switchTab"", [""airsupport""]] call A3A_GUI_fnc_mainDialog;";
+                    x = 10 * GRID_W;
+                    y = 80 * GRID_H;
+                    w = 24 * GRID_W;
+                    h = 12 * GRID_H;
+                };
+
+                class GarbageCleanButton : A3A_ShortcutButton
+                {
+                    idc = A3A_IDC_GARBAGECLEANBUTTON;
+                    text = $STR_antistasi_dialogs_main_garbage_clean_button;
+                    onButtonclick = "[""showGarbageCleanOptions""] call A3A_GUI_fnc_commanderTab";
+                    x = 36 * GRID_W;
+                    y = 80 * GRID_H;
+                    w = 24 * GRID_W;
+                    h = 12 * GRID_H;
+                };
+
+                class GarbageCleanControlsGroup : A3A_ControlsGroupNoScrollbars
+                {
+                    idc = A3A_IDC_GARBAGECLEANCONTROLSGROUP;
+                    x = 10 * GRID_W;
+                    y = 80 * GRID_H;
+                    w = 50 * GRID_W;
+                    h = 12 * GRID_H;
+
+                    class controls
+                    {
+                        class GarbageCleanMapButton : A3A_ShortcutButton
+                        {
+                            idc = -1;
+                            text = $STR_antistasi_dialogs_main_garbage_clean_all;
+                            onButtonClick = "[""garbageCleanMapButtonClicked""] call A3A_GUI_fnc_commanderTab";
+                            x = 0 * GRID_W;
+                            y = 0 * GRID_H;
+                            w = 24 * GRID_W;
+                            h = 12 * GRID_H;
+                        };
+
+                        class GarbageCleanHQButton : A3A_ShortcutButton
+                        {
+                            idc = -1;
+                            text = $STR_antistasi_dialogs_main_garbage_clean_hq;
+                            onButtonClick = "[""garbageCleanHqButtonClicked""] call A3A_GUI_fnc_commanderTab";
+                            x = 26 * GRID_W;
+                            y = 0 * GRID_H;
+                            w = 24 * GRID_W;
+                            h = 12 * GRID_H;
+                        };
+
+                    };
+                };
+
+            };
+        };
+
+        class AdminTab : A3A_DefaultControlsGroup
+        {
+            idc = A3A_IDC_ADMINTAB;
+            show = false;
+
+            class Controls
+            {
+                class DebugSectionLabel : A3A_SectionLabelRight
+                {
+                    idc = -1;
+                    text = $STR_antistasi_dialogs_main_admin_debug_info_label;
+                    x = 8 * GRID_W;
+                    y = 8 * GRID_H;
+                    w = 46 * GRID_W;
+                    h = 4 * GRID_H;
+                };
+
+                class DebugInfoText : A3A_StructuredText
+                {
+                    idc = A3A_IDC_DEBUGINFO;
+                    colorBackground[] = A3A_COLOR_BACKGROUND;
+                    x = 8 * GRID_W;
+                    y = 12 * GRID_H;
+                    w = 46 * GRID_W;
+                    h = 44 * GRID_H;
+                };
+
+                class PlayerManagementButton : A3A_ShortcutButton
+                {
+                    idc = A3A_IDC_PLAYERMANAGEMENTBUTTON;
+                    text = $STR_antistasi_dialogs_main_admin_player_management_button;
+                    onButtonClick = "[""switchTab"", [""playermanagement""]] call A3A_GUI_fnc_mainDialog;";
+                    x = 8 * GRID_W;
+                    y = 64 * GRID_H;
+                    w = 46 * GRID_W;
+                    h = 12 * GRID_H;
+                    size = GUI_TEXT_SIZE_LARGE;
+
+                    class TextPos
+                    {
+                        left = 2 * GRID_W;
+                        right = 2 * GRID_H;
+                        top = 3 * GRID_W;
+                        bottom = 3 * GRID_H;
+                    };
+                };
+
+                class TakeCommandButton : A3A_ShortcutButton
+                {
+                    idc = A3A_IDC_TAKECMD;
+                    text = $STR_antistasi_dialogs_main_admin_take_command_button;
+                    x = 8 * GRID_W;
+                    y = 80 * GRID_H;
+                    w = 22 * GRID_W;
+                    h = 12 * GRID_H;
+                    onMouseButtonClick = "[""takeCommand""] spawn A3A_GUI_fnc_adminTab";
+                };
+
+                class PersistentSaveButton : A3A_ShortcutButton
+                {
+                    idc = A3A_IDC_PERSISTENTSAVEADMIN;
+                    text = $STR_antistasi_dialogs_main_persistent_save_button;
+                    x = 32 * GRID_W;
+                    y = 80 * GRID_H;
+                    w = 22 * GRID_W;
+                    h = 12 * GRID_H;
+                    onButtonClick = "[""persistentSave""] spawn A3A_GUI_fnc_adminTab";
+                };
+
+                class AiSectionLabel : A3A_SectionLabelRight
+                {
+                    idc = -1;
+                    text = $STR_antistasi_dialogs_main_admin_ai_options_label;
+                    x = 70 * GRID_W;
+                    y = 8 * GRID_H;
+                    w = 90 * GRID_W;
+                    h = 4 * GRID_H;
+                };
+
+                class CivLimitLabel : A3A_Text
+                {
+                    idc = -1;
+                    text = $STR_antistasi_dialogs_main_admin_civ_limit_label;
+                    sizeEx = GUI_TEXT_SIZE_MEDIUM;
+                    x = 74 * GRID_W;
+                    y = 16 * GRID_H;
+                    w = 24 * GRID_W;
+                    h = 4 * GRID_H;
+                };
+
+                class CivLimitSlider : A3A_Slider
+                {
+                    idc = A3A_IDC_CIVLIMITSLIDER;
+                    x = 98 * GRID_W;
+                    y = 16 * GRID_H;
+                    w = 40 * GRID_W;
+                    h = 4 * GRID_H;
+                    onSliderPosChanged = "[""civLimitSliderChanged""] spawn A3A_GUI_fnc_adminTab";
+                };
+
+                class CivLimitEditBox : A3A_Edit
+                {
+                    idc = A3A_IDC_CIVLIMITEDITBOX;
+                    style = ST_RIGHT;
+                    text = "0";
+                    sizeEx = GUI_TEXT_SIZE_MEDIUM;
+                    x = 140 * GRID_W;
+                    y = 16 * GRID_H;
+                    w = 12 * GRID_W;
+                    h = 4 * GRID_H;
+                    onChar = "[""civLimitEditBoxChanged""] spawn A3A_GUI_fnc_adminTab";
+                };
+
+                class SpawnDistanceLabel : A3A_Text
+                {
+                    idc = -1;
+                    text = $STR_antistasi_dialogs_main_admin_spawn_distance_label;
+                    sizeEx = GUI_TEXT_SIZE_MEDIUM;
+                    x = 74 * GRID_W;
+                    y = 22 * GRID_H;
+                    w = 24 * GRID_W;
+                    h = 4 * GRID_H;
+                };
+
+                class SpawnDistanceSlider : A3A_Slider
+                {
+                    idc = A3A_IDC_SPAWNDISTANCESLIDER;
+                    x = 98 * GRID_W;
+                    y = 22 * GRID_H;
+                    w = 40 * GRID_W;
+                    h = 4 * GRID_H;
+                    onSliderPosChanged = "[""spawnDistanceSliderChanged""] spawn A3A_GUI_fnc_adminTab";
+                };
+
+                class SpawnDistanceEditBox : A3A_Edit
+                {
+                    idc = A3A_IDC_SPAWNDISTANCEEDITBOX;
+                    style = ST_RIGHT;
+                    text = "0";
+                    sizeEx = GUI_TEXT_SIZE_MEDIUM;
+                    x = 140 * GRID_W;
+                    y = 22 * GRID_H;
+                    w = 12 * GRID_W;
+                    h = 4 * GRID_H;
+                    onChar = "[""spawnDistanceEditBoxChanged""] spawn A3A_GUI_fnc_adminTab";
+                };
+
+                // class AiLimiterLabel : A3A_Text
+                // {
+                //     idc = -1;
+                //     text = $STR_antistasi_dialogs_main_admin_ai_limiter_label;
+                //     sizeEx = GUI_TEXT_SIZE_MEDIUM;
+                //     x = 74 * GRID_W;
+                //     y = 28 * GRID_H;
+                //     w = 24 * GRID_W;
+                //     h = 4 * GRID_H;
+                // };
+
+                // class AiLimiterSlider : A3A_Slider
+                // {
+                //     idc = A3A_IDC_AILIMITERSLIDER;
+                //     x = 98 * GRID_W;
+                //     y = 28 * GRID_H;
+                //     w = 40 * GRID_W;
+                //     h = 4 * GRID_H;
+                //     onSliderPosChanged = "[""aiLimiterSliderChanged""] spawn A3A_GUI_fnc_adminTab";
+                // };
+
+                // class AiLimiterEditBox : A3A_Edit
+                // {
+                //     idc = A3A_IDC_AILIMITEREDITBOX;
+                //     style = ST_RIGHT;
+                //     text = "0";
+                //     sizeEx = GUI_TEXT_SIZE_MEDIUM;
+                //     x = 140 * GRID_W;
+                //     y = 28 * GRID_H;
+                //     w = 12 * GRID_W;
+                //     h = 4 * GRID_H;
+                //     onChar = "[""aiLimiterEditBoxChanged""] spawn A3A_GUI_fnc_adminTab";
+                // };
+
+                // class AiSectionWarningBackground : A3A_Background
+                // {
+                //     idc = -1;
+                //     colorBackground[] = {0,0,0,0.6};
+                //     x = 75 * GRID_W;
+                //     y = 37 * GRID_H;
+                //     w = 52 * GRID_W;
+                //     h = 10 * GRID_H;
+                // };
+
+                // class AiSectionWarningIcon : A3A_Picture
+                // {
+                //     idc = -1;
+                //     text = A3A_Icon_Warning;
+                //     colorText[] = A3A_COLOR_ERROR;
+                //     x = 76 * GRID_W;
+                //     y = 38 * GRID_H;
+                //     w = 8 * GRID_W;
+                //     h = 8 * GRID_H;
+                // };
+
+                // class AiSectionWarning : A3A_TextMulti
+                // {
+                //     idc = -1;
+                //     text = $STR_antistasi_dialogs_main_admin_ai_section_warning;
+                //     sizeEx = GUI_TEXT_SIZE_SMALL;
+                //     font = "PuristaLight";
+                //     x = 85 * GRID_W;
+                //     y = 37 * GRID_H;
+                //     w = 42 * GRID_W;
+                //     h = 10 * GRID_H;
+                // };
+
+                class CommitAiButton : A3A_Button
+                {
+                    idc = A3A_IDC_COMMITAIBUTTON;
+                    text = $STR_antistasi_dialogs_main_admin_ai_commit_button;
+                    onButtonClick = "[""confirmAILimit""] call A3A_GUI_fnc_adminTab;"; // TODO UI-update: Placeholder
+                    x = 132 * GRID_W;
+                    y = 36 * GRID_H;
+                    w = 20 * GRID_W;
+                    h = 12 * GRID_H;
+
+                    class TextPos
+                    {
+                        left = 2 * GRID_W;
+                        right = 2 * GRID_W;
+                        top = 1 * GRID_H;
+                        bottom = 1 * GRID_W;
+                    };
+                };
+
+                class TpSectionLabel : A3A_SectionLabelRight
+                {
+                    idc = -1;
+                    text = $STR_antistasi_dialogs_main_admin_tp_label;
+                    x = 70 * GRID_W;
+                    y = 56 * GRID_H;
+                    w = 90 * GRID_W;
+                    h = 4 * GRID_H;
+                };
+
+                class TpPetrosButton : A3A_Button
+                {
+                    idc = -1;
+                    text = $STR_antistasi_dialogs_main_admin_tp_petros_button;
+                    onButtonClick = "[""tpPetrosToAdmin""] call A3A_GUI_fnc_adminTab;";
+                    //tooltip = $STR_antistasi_dialogs_main_fast_travel_tooltip;
+                    x = 74 * GRID_W;
+                    y = 64 * GRID_H;
+                    w = 16 * GRID_H;
+                    h = 12 * GRID_H;
+                };
+
+                class TpArsenalBoxButton : A3A_Button
+                {
+                    idc = -1;
+                    text = $STR_antistasi_dialogs_main_admin_tp_arsenal_box_button;
+                    onButtonClick = "[""tpArsenalToAdmin""] call A3A_GUI_fnc_adminTab;";
+                    x = 103 * GRID_W;
+                    y = 64 * GRID_H;
+                    w = 16 * GRID_H;
+                    h = 12 * GRID_H;
+                };
+
+                class TpVehicleBoxButton : A3A_Button
+                {
+                    idc = -1;
+                    text = $STR_antistasi_dialogs_main_admin_tp_vehicle_box_button;
+                    onButtonClick = "[""tpVehicleToAdmin""] call A3A_GUI_fnc_adminTab;";
+                    x = 132 * GRID_W;
+                    y = 64 * GRID_H;
+                    w = 16 * GRID_H;
+                    h = 12 * GRID_H;
+                };
+
+                class TpFlagButton : A3A_Button
+                {
+                    idc = -1;
+                    text = $STR_antistasi_dialogs_main_admin_tp_flag_button;
+                    onButtonClick = "[""tpFlagToAdmin""] call A3A_GUI_fnc_adminTab;";
+                    x = 74 * GRID_W;
+                    y = 80 * GRID_H;
+                    w = 16 * GRID_H;
+                    h = 12 * GRID_H;
+                };
+
+                class TpTentButton : A3A_Button
+                {
+                    idc = -1;
+                    text = $STR_antistasi_dialogs_main_admin_tp_tent_button;
+                    onButtonClick = "[""tpTentToAdmin""] call A3A_GUI_fnc_adminTab;";
+                    x = 103 * GRID_W;
+                    y = 80 * GRID_H;
+                    w = 16 * GRID_H;
+                    h = 12 * GRID_H;
+                };
+
+                class TpMapButton : A3A_Button
+                {
+                    idc = -1;
+                    text = $STR_antistasi_dialogs_main_admin_tp_map_button;
+                    onButtonClick = "[""tpMapBoardToAdmin""] call A3A_GUI_fnc_adminTab;";
+                    x = 132 * GRID_W;
+                    y = 80 * GRID_H;
+                    w = 16 * GRID_H;
+                    h = 12 * GRID_H;
+                };
+            };
+        };
+
+
+        /////////////
+        // SUBTABS //
+        /////////////
+
+        class FastTravelMap : A3A_MapControl
+        {
+            idc = A3A_IDC_FASTTRAVELMAP;
+            onMouseButtonClick = "[""mapClicked"", [[_this select 2, _this select 3]]] call A3A_GUI_fnc_fastTravelTab";
+            x = CENTER_X(DIALOG_W) + 48 * GRID_W;
+            y = CENTER_Y(DIALOG_H) + 8 * GRID_H;
+            w = 104 * GRID_W;
+            h = 84 * GRID_H;
+
+            // Hide map markers
+            showMarkers = false;
+
+            // Fade satellite texture a bit
+            maxSatelliteAlpha = 0.75;
+            alphaFadeStartScale = 3.0;
+            alphaFadeEndScale = 3.0;
+
+            // Set zoom levels
+            scaleMin = 0.2; // 0.2 = Smallest scale showing the 100m grid
+            scaleDefault = 0.325; // 0.325 = Largest scale forests still are visible
+            scaleMax = 1; // 2 = Max zoom level
+        };
+
+        class FastTravelTab : A3A_DefaultControlsGroup
+        {
+            idc = A3A_IDC_FASTTRAVELTAB;
+            // Width set to smaller than usual to avoid an issue where
+            // pressing anything other than the map would (invisibly) cover up the
+            // map control, making it unclickable
+            w = 44 * GRID_W;
+            show = false;
+
+            class controls
+            {
+
+                class FastTravelLabel : A3A_SectionLabelRight
+                {
+                    idc = -1;
+                    text = $STR_antistasi_dialogs_main_fast_travel;
+                    x = 8 * GRID_W;
+                    y = 8 * GRID_H;
+                    w = 36 * GRID_W;
+                    h = 4 * GRID_H;
+                };
+
+                class FastTravelBackground : A3A_Background
+                {
+                    idc = -1;
+                    x = 8 * GRID_W;
+                    y = 12 * GRID_H;
+                    w = 36 * GRID_W;
+                    h = 68 * GRID_H;
+                };
+
+                class FastTravelSelectText : A3A_TextMulti
+                {
+                    idc = A3A_IDC_FASTTRAVELSELECTTEXT;
+                    x = 8 * GRID_W;
+                    y = 14 * GRID_H;
+                    w = 36 * GRID_W;
+                    h = 16 * GRID_H;
+                };
+
+                class FastTravelInfoText : A3A_StructuredText
+                {
+                    idc = A3A_IDC_FASTTRAVELLOCATIONGROUP;
+                    x = 8 * GRID_W;
+                    y = 14 * GRID_H;
+                    w = 36 * GRID_W;
+                    h = 60 * GRID_H;
+                };
+
+                class FastTravelCommitButton : A3A_Button
+                {
+                    idc = A3A_IDC_FASTTRAVELCOMMITBUTTON;
+                    text = $STR_antistasi_dialogs_main_fast_travel;
+                    // tooltip = $STR_antistasi_dialogs_main_fast_travel_tooltip;
+                    onButtonClick = "[""commitButtonClicked""] call A3A_GUI_fnc_fastTravelTab;";
+                    sizeEx = GUI_TEXT_SIZE_LARGE;
+                    x = 8 * GRID_W;
+                    y = 80 * GRID_H;
+                    w = 36 * GRID_W;
+                    h = 12 * GRID_H;
+                };
+            };
+        };
+
+        class ConstructTab : A3A_DefaultControlsGroup
+        {
+            idc = A3A_IDC_CONSTRUCTTAB;
+            show = false;
+
+            class controls
+            {
+                class ConstructControlsGroup : A3A_ControlsGroupNoHScrollbars
+                {
+                    idc = A3A_IDC_CONSTRUCTGROUP;
+                    x = 0;
+                    y = 4 * GRID_H;
+                    w = PX_W(DIALOG_W);
+                    h = PX_H(DIALOG_H) - 8 * GRID_H;
+                };
+            };
+        };
+
+        class AIManagementTab : A3A_DefaultControlsGroup
+        {
+            idc = A3A_IDC_AIMANAGEMENTTAB;
+            show = false;
+
+            class controls
+            {
+
+                class AIListLabel : A3A_SectionLabelRight
+                {
+                    idc = -1;
+                    text = $STR_antistasi_dialogs_main_ai_management_ai_list_label;
+                    x = 15 * GRID_W;
+                    y = 14 * GRID_H;
+                    w = 68 * GRID_W;
+                    h = 4 * GRID_H;
+                };
+
+                class ClearAIListSelectionButton : A3A_Button
+                {
+                    idc = -1;
+                    sizeEx = GUI_TEXT_SIZE_SMALL;
+                    text = $STR_antistasi_dialogs_main_ai_management_clear_button;
+                    tooltip = $STR_antistasi_dialogs_main_ai_management_clear_tooltip;
+                    onButtonClick = "[""clearAIListboxSelection""] call A3A_GUI_fnc_aiManagementTab;";
+                    x = 83 * GRID_W;
+                    y = 14 * GRID_H;
+                    w = 10 * GRID_W;
+                    h = 4 * GRID_H;
+                };
+
+                class AIListBox : A3A_ListBoxMulti
+                {
+                    idc = A3A_IDC_AILISTBOX;
+                    onLBSelChanged = "[""aiListBoxSelectionChanged""] spawn A3A_GUI_fnc_aiManagementTab";
+                    x = 15 * GRID_W;
+                    y = 18 * GRID_H;
+                    w = 78 * GRID_W;
+                    h = 68 * GRID_H;
+                };
+
+                class AIButtonsControlsGroup : A3A_ControlsGroupNoScrollbars
+                {
+                    idc = -1;
+                    x = 101 * GRID_W;
+                    y = 12 * GRID_H;
+                    w = 44 * GRID_W;
+                    h = 76 * GRID_H;
+
+                    class controls
+                    {
+                        class AiControlButton : A3A_ShortcutButton
+                        {
+                            idc = A3A_IDC_AICONTROLBUTTON;
+                            text = $STR_antistasi_dialogs_main_ai_management_temp_ai_control_button;
+                            onButtonClick = "[""aiControlButtonClicked""] call A3A_GUI_fnc_aiManagementTab";
+                            x = 0 * GRID_W;
+                            y = 0 * GRID_H;
+                            w = 32 * GRID_W;
+                            h = 12 * GRID_H;
+                        };
+
+                        class AiControlIcon : A3A_Picture
+                        {
+                            idc = A3A_IDC_AICONTROLICON;
+                            text = A3A_Icon_Remotecontrol;
+                            x = 36 * GRID_W;
+                            y = 2 * GRID_H;
+                            w = 8 * GRID_W;
+                            h = 8 * GRID_H;
+                        };
+
+                        class DismissButton : A3A_ShortcutButton
+                        {
+                            idc = A3A_IDC_AIDISMISSBUTTON;
+                            text = $STR_antistasi_dialogs_main_ai_management_dismiss_button;
+                            onButtonClick = "[""dismissButtonClicked""] call A3A_GUI_fnc_aiManagementTab";
+                            x = 0 * GRID_W;
+                            y = 16 * GRID_H;
+                            w = 32 * GRID_W;
+                            h = 12 * GRID_H;
+                        };
+
+                        class DismissIcon : A3A_Picture
+                        {
+                            idc = A3A_IDC_AIDISMISSICON;
+                            text = A3A_Icon_Dismiss;
+                            x = 36 * GRID_W;
+                            y = 18 * GRID_H;
+                            w = 8 * GRID_W;
+                            h = 8 * GRID_H;
+                        };
+
+                        class AutoLootButton : A3A_ShortcutButton
+                        {
+                            idc = A3A_IDC_AIAUTOLOOTBUTTON;
+                            text = $STR_antistasi_dialogs_main_ai_management_auto_rearm_button;
+                            onButtonClick = "[""autoLootButtonClicked""] call A3A_GUI_fnc_aiManagementTab";
+                            x = 0 * GRID_W;
+                            y = 32 * GRID_H;
+                            w = 32 * GRID_W;
+                            h = 12 * GRID_H;
+                        };
+
+                        class AutoLootIcon : A3A_Picture
+                        {
+                            idc = A3A_IDC_AIAUTOLOOTICON;
+                            text = A3A_Icon_Rearm;
+                            x = 36 * GRID_W;
+                            y = 34 * GRID_H;
+                            w = 8 * GRID_W;
+                            h = 8 * GRID_H;
+                        };
+
+                        class AutoHealButton : A3A_ShortcutButton
+                        {
+                            idc = A3A_IDC_AIAUTOHEALBUTTON;
+                            text = $STR_antistasi_dialogs_main_ai_management_auto_heal_button;
+                            onButtonClick = "[""autoHealButtonClicked""] call A3A_GUI_fnc_aiManagementTab";
+                            x = 0 * GRID_W;
+                            y = 48 * GRID_H;
+                            w = 32 * GRID_W;
+                            h = 12 * GRID_H;
+                        };
+
+                        class AutoHealIcon : A3A_Picture
+                        {
+                            idc = A3A_IDC_AIAUTOHEALICON;
+                            text = A3A_Icon_Heal;
+                            x = 36 * GRID_W;
+                            y = 50 * GRID_H;
+                            w = 8 * GRID_W;
+                            h = 8 * GRID_H;
+                        };
+
+                        class ConvertToSquadButton : A3A_ShortcutButton
+                        {
+                            idc = A3A_IDC_AICONVERTTOSQUADBUTTON;
+                            text = $STR_antistasi_dialogs_main_convertToSquad_button;
+                            onButtonClick = "[""convertSquadButtonClicked""] call A3A_GUI_fnc_aiManagementTab";
+                            x = 0 * GRID_W;
+                            y = 64 * GRID_H;
+                            w = 32 * GRID_W;
+                            h = 12 * GRID_H;
+                        };
+
+                        class ConvertToSquadIcon : A3A_Picture
+                        {
+                            idc = A3A_IDC_AICONVERTTOSQUADICON;
+                            text = A3A_Icon_None;
+                            x = 36 * GRID_W;
+                            y = 66 * GRID_H;
+                            w = 8 * GRID_W;
+                            h = 8 * GRID_H;
+                        };
+                    };
+                };
+
+            };
+        };
+
+        class WarStatusTab : A3A_DefaultControlsGroup
+        {
+            idc = A3A_IDC_WARSTATUSTAB;
+            show = false;
+
+            class controls
+            {
+                class OccGroup : A3A_ControlsGroupNoScrollbars 
+                {
+                    idc = A3A_IDC_WARSTATUS_OCCGROUP;
+                    x = 5 * GRID_W;
+                    y = 6 * GRID_H;
+                    w = 28 * GRID_W;
+                    h = 94 * GRID_H;
+                    class controls 
+                    {
+                        class OccTitle : A3A_SectionLabelCenter
+                        {
+                            idc = A3A_IDC_WARSTATUS_OCCTITLE;
+                            text = $STR_antistasi_dialogs_main_warstatus_occupants;
+                            x = 0 * GRID_W;
+                            y = 0 * GRID_H;
+                            w = 28 * GRID_W;
+                            h = 4 * GRID_H;
+                        };
+                        class OccFlag : A3A_Picture 
+                        {
+                            idc = A3A_IDC_WARSTATUS_OCCFLAG;
+                            x = 0 * GRID_W;
+                            y = 6 * GRID_H;
+                            w = 28 * GRID_W;
+                            h = 19 * GRID_H;
+                        };
+                        class OccDescription : A3A_StructuredText
+                        {
+                            idc = A3A_IDC_WARSTATUS_OCCDESCRIPTION;
+                            x = -1 * GRID_W;
+                            y = 28 * GRID_H;
+                            w = 30 * GRID_W;
+                            h = 43 * GRID_H;
+                            size = GUI_TEXT_SIZE_SMALL;
+                            style = ST_CENTER;
+                        };
+                        class OccAggro : A3A_Text
+                        {
+                            idc = A3A_IDC_WARSTATUS_OCCAGGRO;
+                            x = 0 * GRID_W;
+                            y = 72 * GRID_H;
+                            w = 24 * GRID_W;
+                            h = 5 * GRID_H;
+                            sizeEx = GUI_TEXT_SIZE_SMALL;
+                        };
+                        class OccResources : A3A_Text
+                        {
+                            idc = A3A_IDC_WARSTATUS_OCCRESOURCES;
+                            x = 0 * GRID_W;
+                            y = 77 * GRID_H;
+                            w = 24 * GRID_W;
+                            h = 5 * GRID_H;
+                            sizeEx = GUI_TEXT_SIZE_SMALL;
+                        };
+                        class OccKeys : A3A_Text {
+                            idc = A3A_IDC_WARSTATUS_OCCKEYS;
+                            x = 0 * GRID_W;
+                            y = 82 * GRID_H;
+                            w = 24 * GRID_W;
+                            h = 5 * GRID_H;
+                            sizeEx = GUI_TEXT_SIZE_SMALL;
+                        };
+                    };
+                };
+
+                class InvGroup : A3A_ControlsGroupNoScrollbars 
+                {
+                    idc = A3A_IDC_WARSTATUS_INVGROUP;
+                    x = 38 * GRID_W;
+                    y = 6 * GRID_H;
+                    w = 28 * GRID_W;
+                    h = 94 * GRID_H;
+                    class controls 
+                    {
+                        class InvTitle : A3A_SectionLabelCenter
+                        {
+                            idc = A3A_IDC_WARSTATUS_INVTITLE;
+                            text = $STR_antistasi_dialogs_main_warstatus_invaders;
+                            x = 0 * GRID_W;
+                            y = 0 * GRID_H;
+                            w = 28 * GRID_W;
+                            h = 4 * GRID_H;
+                        };
+                        class InvFlag : A3A_Picture 
+                        {
+                            idc = A3A_IDC_WARSTATUS_INVFLAG;
+                            x = 0 * GRID_W;
+                            y = 6 * GRID_H;
+                            w = 28 * GRID_W;
+                            h = 19 * GRID_H;
+                        };
+                        class InvDescription : A3A_StructuredText
+                        {
+                            idc = A3A_IDC_WARSTATUS_INVDESCRIPTION;
+                            x = -1 * GRID_W;
+                            y = 28 * GRID_H;
+                            w = 30 * GRID_W;
+                            h = 43 * GRID_H;
+                            size = GUI_TEXT_SIZE_SMALL;
+                            style = ST_CENTER;
+                        };
+                        class InvAggro : A3A_Text
+                        {
+                            idc = A3A_IDC_WARSTATUS_INVAGGRO;
+                            x = 0 * GRID_W;
+                            y = 72 * GRID_H;
+                            w = 24 * GRID_W;
+                            h = 5 * GRID_H;
+                            sizeEx = GUI_TEXT_SIZE_SMALL;
+                        };
+                        class InvResources : A3A_Text
+                        {
+                            idc = A3A_IDC_WARSTATUS_INVRESOURCES;
+                            x = 0 * GRID_W;
+                            y = 77 * GRID_H;
+                            w = 24 * GRID_W;
+                            h = 5 * GRID_H;
+                            sizeEx = GUI_TEXT_SIZE_SMALL;
+                        };
+                        class InvKeys : A3A_Text {
+                            idc = A3A_IDC_WARSTATUS_INVKEYS;
+                            x = 0 * GRID_W;
+                            y = 82 * GRID_H;
+                            w = 24 * GRID_W;
+                            h = 5 * GRID_H;
+                            sizeEx = GUI_TEXT_SIZE_SMALL;
+                        };
+                    };
+                };
+
+                class RebGroup : A3A_ControlsGroupNoScrollbars 
+                {
+                    idc = A3A_IDC_WARSTATUS_REBGROUP;
+                    x = 71 * GRID_W;
+                    y = 6 * GRID_H;
+                    w = 28 * GRID_W;
+                    h = 94 * GRID_H;
+                    class controls 
+                    {
+                        class RebTitle : A3A_SectionLabelCenter
+                        {
+                            idc = A3A_IDC_WARSTATUS_REBTITLE;
+                            text = $STR_antistasi_dialogs_main_warstatus_rebels;
+                            x = 0 * GRID_W;
+                            y = 0 * GRID_H;
+                            w = 28 * GRID_W;
+                            h = 4 * GRID_H;
+                        };
+                        class RebFlag : A3A_Picture 
+                        {
+                            idc = A3A_IDC_WARSTATUS_REBFLAG;
+                            x = 0 * GRID_W;
+                            y = 6 * GRID_H;
+                            w = 28 * GRID_W;
+                            h = 19 * GRID_H;
+                        };
+                        class RebDescription : A3A_StructuredText
+                        {
+                            idc = A3A_IDC_WARSTATUS_REBDESCRIPTION;
+                            x = -1 * GRID_W;
+                            y = 28 * GRID_H;
+                            w = 30 * GRID_W;
+                            h = 43 * GRID_H;
+                            size = GUI_TEXT_SIZE_SMALL;
+                            style = ST_CENTER;
+                        };
+                        class RebMoney : A3A_Text
+                        {
+                            idc = A3A_IDC_WARSTATUS_REBMONEY;
+                            x = 0 * GRID_W;
+                            y = 72 * GRID_H;
+                            w = 24 * GRID_W;
+                            h = 5 * GRID_H;
+                            sizeEx = GUI_TEXT_SIZE_SMALL;
+                        };
+                        class RebHR : A3A_Text
+                        {
+                            idc = A3A_IDC_WARSTATUS_REBHR;
+                            x = 0 * GRID_W;
+                            y = 77 * GRID_H;
+                            w = 24 * GRID_W;
+                            h = 5 * GRID_H;
+                            sizeEx = GUI_TEXT_SIZE_SMALL;
+                        };
+                    };
+                };
+
+                // Campaign status section
+                class CampaignStatusControlsGroup : A3A_ControlsGroupNoScrollbars
+                {
+                    idc = -1;
+                    x = 106 * GRID_W;
+                    y = 6 * GRID_H;
+                    w = 54 * GRID_W;
+                    h = 30 * GRID_H;
+
+                    class controls
+                    {
+                        class CampaignStatusLabel : A3A_SectionLabelCenter
+                        {
+                            idc = -1;
+                            text = $STR_antistasi_dialogs_hq_campaign_status;
+                            x = 0 * GRID_W;
+                            y = 0 * GRID_H;
+                            w = 54 * GRID_W;
+                            h = 4 * GRID_H;
+                        };
+
+                        // Controlled locations
+
+                        class ControlledCitiesIcon : A3A_Picture
+                        {
+                            idc = A3A_IDC_CONTROLLEDCITIESICON;
+                            text = A3A_Icon_Town;
+                            tooltip = $STR_antistasi_dialogs_hq_controlled_cities;
+                            x = 2 * GRID_W;
+                            y = 6 * GRID_H;
+                            w = 4 * GRID_W;
+                            h = 4 * GRID_H;
+                        };
+
+                        class ControlledCitiesText : A3A_Text
+                        {
+                            idc = A3A_IDC_CONTROLLEDCITIESTEXT;
+                            text = "";
+                            tooltip = $STR_antistasi_dialogs_hq_controlled_cities;
+                            x = 6 * GRID_W;
+                            y = 6 * GRID_H;
+                            w = 12 * GRID_W;
+                            h = 4 * GRID_H;
+                        };
+
+                        class ControlledOutpostsIcon : A3A_Picture
+                        {
+                            idc = A3A_IDC_CONTROLLEDOUTPOSTSICON;
+                            text = A3A_Icon_Outpost;
+                            tooltip = $STR_antistasi_dialogs_hq_controlled_outposts;
+                            x = 19 * GRID_W;
+                            y = 6 * GRID_H;
+                            w = 4 * GRID_W;
+                            h = 4 * GRID_H;
+                        };
+
+                        class ControlledOutpostsText : A3A_Text
+                        {
+                            idc = A3A_IDC_CONTROLLEDOUTPOSTSTEXT;
+                            text = "";
+                            tooltip = $STR_antistasi_dialogs_hq_controlled_outposts;
+                            x = 23 * GRID_W;
+                            y = 6 * GRID_H;
+                            w = 12 * GRID_W;
+                            h = 4 * GRID_H;
+                        };
+
+                        class ControlledAirBasesIcon : A3A_Picture
+                        {
+                            idc = A3A_IDC_CONTROLLEDAIRBASESICON;
+                            text = A3A_Icon_Airbase;
+                            tooltip = $STR_antistasi_dialogs_hq_controlled_airbases;
+                            x = 36 * GRID_W;
+                            y = 6 * GRID_H;
+                            w = 4 * GRID_W;
+                            h = 4 * GRID_H;
+                        };
+
+                        class ControlledAirBasesText : A3A_Text
+                        {
+                            idc = A3A_IDC_CONTROLLEDAIRBASESTEXT;
+                            text = "";
+                            tooltip = $STR_antistasi_dialogs_hq_controlled_airbases;
+                            x = 40 * GRID_W;
+                            y = 6 * GRID_H;
+                            w = 12 * GRID_W;
+                            h = 4 * GRID_H;
+                        };
+
+                        ////////////////////////////
+
+                        class ControlledResourcesIcon : A3A_Picture
+                        {
+                            idc = A3A_IDC_CONTROLLEDRESOURCESICON;
+                            text = A3A_Icon_Resource;
+                            tooltip = $STR_antistasi_dialogs_hq_controlled_resources;
+                            x = 2 * GRID_W;
+                            y = 11 * GRID_H;
+                            w = 4 * GRID_W;
+                            h = 4 * GRID_H;
+                        };
+
+                        class ControlledResourcesText : A3A_Text
+                        {
+                            idc = A3A_IDC_CONTROLLEDRESOURCESTEXT;
+                            text = "";
+                            tooltip = $STR_antistasi_dialogs_hq_controlled_resources;
+                            x = 6 * GRID_W;
+                            y = 11 * GRID_H;
+                            w = 12 * GRID_W;
+                            h = 4 * GRID_H;
+                        };
+
+                        class ControlledFactoriesIcon : A3A_Picture
+                        {
+                            idc = A3A_IDC_CONTROLLEDFACTORIESICON;
+                            text = A3A_Icon_Factory;
+                            tooltip = $STR_antistasi_dialogs_hq_controlled_factories;
+                            x = 19 * GRID_W;
+                            y = 11 * GRID_H;
+                            w = 4 * GRID_W;
+                            h = 4 * GRID_H;
+                        };
+
+                        class ControlledFactoriesText : A3A_Text
+                        {
+                            idc = A3A_IDC_CONTROLLEDFACTORIESTEXT;
+                            text = "";
+                            tooltip = $STR_antistasi_dialogs_hq_controlled_factories;
+                            x = 23 * GRID_W;
+                            y = 11 * GRID_H;
+                            w = 12 * GRID_W;
+                            h = 4 * GRID_H;
+                        };
+
+                        class ControlledSeaPortsIcon : A3A_Picture
+                        {
+                            idc = A3A_IDC_CONTROLLEDSEAPORTSICON;
+                            text = A3A_Icon_Seaport;
+                            tooltip = $STR_antistasi_dialogs_hq_controlled_seaports;
+                            x = 36 * GRID_W;
+                            y = 11 * GRID_H;
+                            w = 4 * GRID_W;
+                            h = 4 * GRID_H;
+                        };
+
+                        class ControlledPortsText : A3A_Text
+                        {
+                            idc = A3A_IDC_CONTROLLEDSEAPORTSTEXT;
+                            text = "";
+                            tooltip = $STR_antistasi_dialogs_hq_controlled_seaports;
+                            x = 40 * GRID_W;
+                            y = 11 * GRID_H;
+                            w = 12 * GRID_W;
+                            h = 4 * GRID_H;
+                        };
+
+                        // Stupid hack frame because armas normal frames gets off by 1 pixel errors
+                        class PopStatusBarFrame : A3A_Background
+                        {
+                            idc = -1;
+                            colorBackground[]= A3A_COLOR_BLACK;
+                            x = 1 * GRID_W - 1 * pixelW;
+                            y = 16 * GRID_H - 1 * pixelH;
+                            w = 50 * GRID_W + 2 * pixelW;
+                            h = 6 * GRID_H + 2 * pixelH;
+                        };
+
+                        class PopStatusBarControlsGroup : A3A_ControlsGroupNoScrollbars
+                        {
+                            idc = -1;
+                            x = 1 * GRID_W;
+                            y = 16 * GRID_H;
+                            w = 50 * GRID_W;
+                            h = 6 * GRID_H;
+
+                            class controls
+                            {
+                                class PopStatusBarBackground : A3A_Background
+                                {
+                                    idc = -1;
+                                    // Intentionally using hardcoded colors here since this isn't intended to be customizeable
+                                    colorBackground[] = {0.3,0.3,0.3,1};
+                                    x = 0 * GRID_W;
+                                    y = 0 * GRID_H;
+                                    w = 50 * GRID_W;
+                                    h = 6 * GRID_H;
+                                };
+
+                                class PopStatusBarReb : A3A_Picture
+                                {
+                                    idc = A3A_IDC_POPSTATUSBARREB;
+                                    text = "#(argb,1,1,1)color(0.9,0.9,0.9,1)";
+                                    tooltip = $STR_antistasi_dialogs_hq_popular_support_tooltip;
+                                    x = 0 * GRID_W;
+                                    y = 0 * GRID_H;
+                                    w = 16 * GRID_W;
+                                    h = 6 * GRID_H;
+                                };
+
+                                class PopStatusBarDead : A3A_Picture
+                                {
+                                    idc = A3A_IDC_POPSTATUSBARDEAD;
+                                    text = "#(argb,1,1,1)color(0.15,0.15,0.15,1)";
+                                    tooltip = $STR_antistasi_dialogs_hq_dead_population_tooltip;
+                                    x = 48 * GRID_W;
+                                    y = 0 * GRID_H;
+                                    w = 2 * GRID_W;
+                                    h = 6 * GRID_H;
+                                };
+
+                                // Line for win condition
+                                class WinLine : A3A_Text
+                                {
+                                    idc = -1;
+                                    style = ST_MULTI + ST_TITLE_BAR + ST_HUD_BACKGROUND;
+                                    text = "";
+                                    colorText[] = {0,0,0,1};
+                                    colorBackground[] = A3A_COLOR_TRANSPARENT;
+                                    x = 25 * GRID_W;
+                                    y = 0;
+                                    w = 0;
+                                    h = 6 * GRID_H;
+                                };
+
+                                // Line for lose condition
+                                class LoseLine : A3A_Text
+                                {
+                                    idc = -1;
+                                    style = ST_MULTI + ST_TITLE_BAR + ST_HUD_BACKGROUND;
+                                    text = "";
+                                    colorText[] = {0,0,0,1};
+                                    colorBackground[] = A3A_COLOR_TRANSPARENT;
+                                    x = 33.33333 * GRID_W;
+                                    y = 0;
+                                    w = 0;
+                                    h = 6 * GRID_H;
+                                };
+
+                                class PopStatusRebText : A3A_Text
+                                {
+                                    idc = A3A_IDC_POPSTATUSREBTEXT;
+                                    text = ""; // Updated from script
+                                    tooltip = $STR_antistasi_dialogs_hq_popular_support_tooltip;
+                                    colorShadow[] = {0,0,0,0.5};
+                                    shadow = 2;
+                                    x = 0 * GRID_W;
+                                    y = 1 * GRID_H;
+                                    w = 10 * GRID_W;
+                                    h = 4 * GRID_H;
+                                };
+
+                                class PopStatusDeadText : A3A_Text
+                                {
+                                    idc = A3A_IDC_POPSTATUSDEADTEXT;
+                                    style = ST_RIGHT;
+                                    text = ""; // Updated from script
+                                    tooltip = $STR_antistasi_dialogs_hq_dead_population_tooltip;
+                                    colorShadow[] = {0,0,0,0.5};
+                                    shadow = 2;
+                                    x = 40 * GRID_W;
+                                    y = 1 * GRID_H;
+                                    w = 10 * GRID_W;
+                                    h = 4 * GRID_H;
+                                };
+
+                            };
+                        };
+
+                        class WarLevel : A3A_Text
+                        {
+                            idc = A3A_IDC_WARSTATUS_WARLEVEL;
+                            x = 27 * GRID_W;
+                            y = 25 * GRID_H;
+                            w = 23 * GRID_W;
+                            h = 4 * GRID_H;
+                        };
+                    };
+                };
+                
+                class IntelGroup : A3A_ControlsGroupNoScrollbars {
+                    idc = A3A_IDC_WARSTATUS_INTELGROUP;
+                    x = 106 * GRID_W;
+                    y = 40 * GRID_H;
+                    w = 54 * GRID_W;
+                    h = 60 * GRID_H;
+                    class controls {
+                        class IntelStreamTitle : A3A_SectionLabelCenter
+                        {
+                            idc = A3A_IDC_WARSTATUS_INTELTITLE;
+                            text = $STR_antistasi_dialogs_main_warstatus_intelfeed;
+                            x = 0 * GRID_W;
+                            y = 0 * GRID_H;
+                            w = 54 * GRID_W;
+                            h = 4 * GRID_H;
+                        };
+                        class IntelList : A3A_Listbox_Small
+                        {
+                            idc = A3A_IDC_WARSTATUS_INTELLIST;
+                            x = 4 * GRID_W;
+                            y = 6 * GRID_H;
+                            w = 46 * GRID_W;
+                            h = 38 * GRID_H;
+                            onLBSelChanged = "['intelSelected'] call A3A_GUI_fnc_warStatusTab";
+                        };
+                        class IntelExtraInfo : A3A_StructuredText
+                        {
+                            idc = A3A_IDC_WARSTATUS_INTELINFO;
+                            x = 0 * GRID_W;
+                            y = 45 * GRID_H;
+                            w = 50 * GRID_W;
+                            h = 15 * GRID_H;
+                            size = GUI_TEXT_SIZE_SMALL;
+                        };
+                    };
+                };
+            };
+        };
+
+        class DonateTab : A3A_DefaultControlsGroup
+        {
+            idc = A3A_IDC_DONATETAB;
+            show = false;
+
+            class controls
+            {
+
+                class PlayerList : A3A_Listbox
+                {
+                    idc = A3A_IDC_DONATEPLAYERLIST;
+                    x = 8 * GRID_H;
+                    y = 8 * GRID_H;
+                    w = 54 * GRID_W;
+                    h = 84 * GRID_H;
+                };
+
+                class MoneyLabel : A3A_Text
+                {
+                    idc = -1;
+                    style = ST_LEFT;
+                    text = $STR_antistasi_dialogs_main_current_money;
+                    sizeEx = GUI_TEXT_SIZE_LARGE;
+                    x = 83 * GRID_W;
+                    y = 30 * GRID_H;
+                    w = 30 * GRID_W;
+                    h = 6 * GRID_H;
+                };
+
+                class MoneyText : A3A_Text
+                {
+                    idc = A3A_IDC_DONATIONMONEYTEXT;
+                    style = ST_RIGHT;
+                    text = "€ 0";
+                    sizeEx = GUI_TEXT_SIZE_LARGE;
+                    x = 113 * GRID_W;
+                    y = 30 * GRID_H;
+                    w = 30 * GRID_W;
+                    h = 6 * GRID_H;
+                };
+
+                class DonationLabel : A3A_Text
+                {
+                    idc = -1;
+                    style = ST_LEFT;
+                    text = $STR_antistasi_dialogs_main_donate_label;
+                    sizeEx = GUI_TEXT_SIZE_LARGE;
+                    x = 83 * GRID_W;
+                    y = 40 * GRID_H;
+                    w = 30 * GRID_W;
+                    h = 6 * GRID_H;
+                };
+
+                class MoneyEditBox : A3A_Edit
+                {
+                    idc = A3A_IDC_MONEYEDITBOX;
+                    style = ST_RIGHT;
+                    text = "0";
+                    sizeEx = GUI_TEXT_SIZE_LARGE;
+                    x = 123 * GRID_W;
+                    y = 40 * GRID_H;
+                    w = 16 * GRID_W;
+                    h = 6 * GRID_H;
+                    onChar = "[""moneyEditBoxChanged""] spawn A3A_GUI_fnc_donateTab";
+                };
+
+                class EuroLabel : A3A_Text
+                {
+                    idc = -1;
+                    style = ST_RIGHT;
+                    text = "€";
+                    sizeEx = GUI_TEXT_SIZE_LARGE;
+                    x = 139 * GRID_W;
+                    y = 40 * GRID_H;
+                    w = 4 * GRID_W;
+                    h = 6 * GRID_H;
+                };
+
+                class Sub1000Button : A3A_ShortcutButton
+                {
+                    idc = -1;
+                    textureNoShortcut = A3A_ArrowEmpty_3L;
+                    onButtonClick = "[""donationAdd"", [-1000]] spawn A3A_GUI_fnc_donateTab";
+                    x = 74 * GRID_W;
+                    y = 53 * GRID_H;
+                    w = 6 * GRID_W;
+                    h = 6 * GRID_H;
+
+                    class ShortcutPos
+                    {
+                        left = 0;
+                        top = 0;
+                        w = 6 * GRID_W;
+                        h = 6 * GRID_H;
+                    };
+                };
+
+                class Sub100Button : A3A_ShortcutButton
+                {
+                    idc = -1;
+                    textureNoShortcut = A3A_ArrowEmpty_2L;
+                    onButtonClick = "[""donationAdd"", [-100]] spawn A3A_GUI_fnc_donateTab";
+                    x = 81 * GRID_W;
+                    y = 53 * GRID_H;
+                    w = 6 * GRID_W;
+                    h = 6 * GRID_H;
+
+                    class ShortcutPos
+                    {
+                        left = 0;
+                        top = 0;
+                        w = 6 * GRID_W;
+                        h = 6 * GRID_H;
+                    };
+                };
+
+                class MoneySlider : A3A_Slider
+                {
+                    idc = A3A_IDC_MONEYSLIDER;
+                    color[] = {1,1,1,1};
+                    arrowEmpty = A3A_ArrowEmpty_1L;
+                    arrowFull = A3A_ArrowFull_1L;
+                    x = 88 * GRID_W;
+                    y = 53 * GRID_H;
+                    w = 50 * GRID_W;
+                    h = 6 * GRID_H;
+                    onSliderPosChanged = "[""moneySliderChanged""] spawn A3A_GUI_fnc_donateTab";
+                };
+
+                class Add100Button : A3A_ShortcutButton
+                {
+                    idc = -1;
+                    textureNoShortcut = A3A_ArrowEmpty_2R;
+                    onButtonClick = "[""donationAdd"", [100]] spawn A3A_GUI_fnc_donateTab";
+                    x = 139 * GRID_W;
+                    y = 53 * GRID_H;
+                    w = 6 * GRID_W;
+                    h = 6 * GRID_H;
+
+                    class ShortcutPos
+                    {
+                        left = 0;
+                        top = 0;
+                        w = 6 * GRID_W;
+                        h = 6 * GRID_H;
+                    };
+                };
+
+                class Add1000Button : A3A_ShortcutButton
+                {
+                    idc = -1;
+                    textureNoShortcut = A3A_ArrowEmpty_3R;
+                    onButtonClick = "[""donationAdd"", [1000]] spawn A3A_GUI_fnc_donateTab";
+                    x = 146 * GRID_W;
+                    y = 53 * GRID_H;
+                    w = 6 * GRID_W;
+                    h = 6 * GRID_H;
+
+                    class ShortcutPos
+                    {
+                        left = 0;
+                        top = 0;
+                        w = 6 * GRID_W;
+                        h = 6 * GRID_H;
+                    };
+                };
+
+                class DonatePlayerButton : A3A_Button
+                {
+                    idc = A3A_IDC_DONATEPLAYERBUTTON;
+                    text = $STR_antistasi_dialogs_main_donate_player;
+                    onButtonClick = "[""donatePlayerConfirmed""] spawn A3A_GUI_fnc_donateTab";
+                    x = 74 * GRID_W;
+                    y = 63 * GRID_H;
+                    w = 36 * GRID_W;
+                    h = 10 * GRID_H;
+                };
+
+                class DonateFactionButton : A3A_Button
+                {
+                    idc = A3A_IDC_DONATEFACTIONBUTTON;
+                    text = $STR_antistasi_dialogs_main_donate_faction;
+                    onButtonClick = "[""donateFactionConfirmed""] spawn A3A_GUI_fnc_donateTab";
+                    x = 116 * GRID_W;
+                    y = 63 * GRID_H;
+                    w = 36 * GRID_W;
+                    h = 10 * GRID_H;
+                };
+            };
+        };
+
+        class AirSupportTab : A3A_DefaultControlsGroup
+        {
+            idc = A3A_IDC_AIRSUPPORTTAB;
+            show = false;
+
+            class controls
+            {
+                class AirSupportInfoBackground : A3A_Background
+                {
+                    idc = -1;
+                    x = 38 * GRID_W;
+                    y = 8 * GRID_H;
+                    w = 84 * GRID_W;
+                    h = 38 * GRID_H;
+                };
+
+                class RemainingPointsLabel : A3A_Text
+                {
+                    idc = -1;
+                    text = $STR_antistasi_dialogs_main_air_support_remaining_points;
+                    sizeEx = GUI_TEXT_SIZE_LARGE;
+                    x = 40 * GRID_W;
+                    y = 10 * GRID_H;
+                    w = 60 * GRID_W;
+                    h = 6 * GRID_H;
+                };
+
+                class RemainingPointsText : A3A_Text
+                {
+                    idc = A3A_IDC_AIRSUPPORTPOINTSTEXT;
+                    style = ST_RIGHT;
+                    text = "0";
+                    sizeEx = GUI_TEXT_SIZE_LARGE;
+                    x = 100 * GRID_W;
+                    y = 10 * GRID_H;
+                    w = 20 * GRID_W;
+                    h = 6 * GRID_H;
+                };
+
+                class AirSupportAircraftLabel : A3A_Text
+                {
+                    idc = -1;
+                    text = $STR_antistasi_dialogs_main_air_support_aircraft_used;
+                    sizeEx = GUI_TEXT_SIZE_LARGE;
+                    x = 40 * GRID_W;
+                    y = 18 * GRID_H;
+                    w = 40 * GRID_W;
+                    h = 6 * GRID_H;
+                };
+
+                class AirSupportAircraftText : A3A_Text
+                {
+                    idc = A3A_IDC_AIRSUPPORTAIRCRAFTTEXT;
+                    text = "Antonov An-2";
+                    sizeEx = GUI_TEXT_SIZE_LARGE;
+                    style = ST_RIGHT;
+                    x = 80 * GRID_W;
+                    y = 18 * GRID_H;
+                    w = 40 * GRID_W;
+                    h = 6 * GRID_H;
+                };
+
+                class AirSupportInfoText : A3A_TextMulti
+                {
+                    idc = -1;
+                    text = $STR_antistasi_dialogs_main_air_support_info;
+                    colorText[] = A3A_COLOR_TEXT_DARKER;
+                    x = 44 * GRID_W;
+                    y = 28 * GRID_H;
+                    w = 72 * GRID_W;
+                    h = 14 * GRID_H;
+                };
+
+                class HeBombsIcon : A3A_Picture
+                {
+                    idc = A3A_IDC_AIRSUPPORTHEICON;
+                    text = A3A_Icon_HE_Bombs;
+                    x = 24 * GRID_W;
+                    y = 54 * GRID_H;
+                    w = 16 * GRID_W;
+                    h = 16 * GRID_H;
+                };
+
+                class HeBombsButton : A3A_ShortcutButton
+                {
+                    idc = A3A_IDC_AIRSUPPORTHEBUTTON;
+                    text = $STR_antistasi_dialogs_main_air_support_he_bombs;
+                    onButtonClick = "closeDialog 0;[""HE""] spawn A3A_fnc_NATObomb;";
+                    x = 16 * GRID_W;
+                    y = 74 * GRID_H;
+                    w = 32 * GRID_W;
+                    h = 12 * GRID_H;
+                };
+
+                class CarpetBombingIcon : A3A_Picture
+                {
+                    idc = A3A_IDC_AIRSUPPORTCARPETICON;
+                    text = A3A_Icon_Carpet_Bombing;
+                    x = 72 * GRID_W;
+                    y = 54 * GRID_H;
+                    w = 16 * GRID_W;
+                    h = 16 * GRID_H;
+                };
+
+                class CarpetBombingButton : A3A_ShortcutButton
+                {
+                    idc = A3A_IDC_AIRSUPPORTCARPETBUTTON;
+                    text = $STR_antistasi_dialogs_main_air_support_carpet_bombing;
+                    onButtonClick = "closeDialog 0;[""CLUSTER""] spawn A3A_fnc_NATObomb;";
+                    x = 64 * GRID_W;
+                    y = 74 * GRID_H;
+                    w = 32 * GRID_W;
+                    h = 12 * GRID_H;
+                };
+
+                class NapalmBombIcon : A3A_Picture
+                {
+                    idc = A3A_IDC_AIRSUPPORTNAPALMICON;
+                    text = A3A_Icon_Napalm_Bomb;
+                    x = 120 * GRID_W;
+                    y = 54 * GRID_H;
+                    w = 16 * GRID_W;
+                    h = 16 * GRID_H;
+                };
+
+                class NapalmBombButton : A3A_ShortcutButton
+                {
+                    idc = A3A_IDC_AIRSUPPORTNAPALMBUTTON;
+                    text = $STR_antistasi_dialogs_main_air_support_napalm;
+                    onButtonClick = "closeDialog 0;[""NAPALM""] spawn A3A_fnc_NATObomb;";
+                    x = 112 * GRID_W;
+                    y = 74 * GRID_H;
+                    w = 32 * GRID_W;
+                    h = 12 * GRID_H;
+                };
+            };
+        };
+
+        class PlayerManagementTab : A3A_DefaultControlsGroup
+        {
+            idc = A3A_IDC_PLAYERMANAGEMENTTAB;
+            show = false;
+
+            class controls
+            {
+
+                class PlayerListBackground : A3A_Background
+                {
+                    idc = -1;
+                    x = 8 * GRID_W;
+                    y = 12 * GRID_H;
+                    w = 106 * GRID_W;
+                    h = 82 * GRID_H;
+                };
+
+                class NameLabel : A3A_Text
+                {
+                    text = $STR_antistasi_dialogs_main_admin_player_name_label;
+                    x = 9 * GRID_W;
+                    y = 8 * GRID_H;
+                    w = 16 * GRID_W;
+                    h = 4 * GRID_W;
+                    sizeEx = GUI_TEXT_SIZE_MEDIUM;
+                };
+
+                class DistanceLabel : A3A_Text
+                {
+                    text = $STR_antistasi_dialogs_main_admin_player_distance_label;
+                    x = 71 * GRID_W;
+                    y = 8 * GRID_H;
+                    w = 16 * GRID_W;
+                    h = 4 * GRID_W;
+                    sizeEx = GUI_TEXT_SIZE_MEDIUM;
+                };
+
+                class UIDLabel : A3A_Text
+                {
+                    text = $STR_antistasi_dialogs_main_admin_player_uid_label;
+                    x = 85 * GRID_W;
+                    y = 8 * GRID_H;
+                    w = 16 * GRID_W;
+                    h = 4 * GRID_W;
+                    sizeEx = GUI_TEXT_SIZE_MEDIUM;
+                };
+
+                class PlayerList : A3A_ListNBox
+                {
+                    idc = A3A_IDC_ADMINPLAYERLIST;
+                    x = 8 * GRID_W;
+                    y = 12 * GRID_H;
+                    w = 106 * GRID_W;
+                    h = 82 * GRID_H;
+                    onLBSelChanged = "[""playerLbSelectionChanged""] spawn A3A_GUI_fnc_playerManagementTab";
+
+                    sizeEx = GUI_TEXT_SIZE_MEDIUM;
+                    rowHeight = 4 * GRID_H;
+                    columns[] = {0,0.59,0.725};
+                };
+
+                class AddMemberButton : A3A_ShortcutButton
+                {
+                    idc = A3A_IDC_ADDMEMBERBUTTON;
+                    text = $STR_antistasi_dialogs_main_admin_add_member_button;
+                    onButtonClick = "[""adminAddMember""] call A3A_GUI_fnc_playerManagementTab";
+                    show = false;
+                    x = 120 * GRID_W;
+                    y = 7 * GRID_H;
+                    w = 32 * GRID_W;
+                    h = 12 * GRID_H;
+                };
+
+                class RemoveMemberButton : A3A_ShortcutButton
+                {
+                    idc = A3A_IDC_REMOVEMEMBERBUTTON;
+                    text = $STR_antistasi_dialogs_main_admin_remove_member_button;
+                    onButtonClick = "[""adminRemoveMember""] call A3A_GUI_fnc_playerManagementTab";
+                    show = false;
+                    x = 120 * GRID_W;
+                    y = 7 * GRID_H;
+                    w = 32 * GRID_W;
+                    h = 12 * GRID_H;
+                };
+
+                class TeleportToPlayerButton : A3A_ShortcutButton
+                {
+                    idc = -1;
+                    text = $STR_antistasi_dialogs_main_admin_tp_to_player_button;
+                    onButtonClick = "[""tpToPlayer""] call A3A_GUI_fnc_playerManagementTab"; // TODO UI-update: Replace placeholder when merging
+                    x = 120 * GRID_W;
+                    y = 22 * GRID_H;
+                    w = 32 * GRID_W;
+                    h = 12 * GRID_H;
+                };
+
+                class TeleportPlayerButton : A3A_ShortcutButton
+                {
+                    idc = -1;
+                    text = $STR_antistasi_dialogs_main_admin_tp_player_to_me_button;
+                    onButtonClick = "[""tpPlayerToMe""] call A3A_GUI_fnc_playerManagementTab";
+                    x = 120 * GRID_W;
+                    y = 37 * GRID_H;
+                    w = 32 * GRID_W;
+                    h = 12 * GRID_H;
+                };
+
+                class KickPlayerButton : A3A_ShortcutButton
+                {
+                    idc = A3A_IDC_KICKPLAYERBUTTON;
+                    text = $STR_antistasi_dialogs_main_admin_kick_player_button;
+                    x = 120 * GRID_W;
+                    y = 52 * GRID_H;
+                    w = 32 * GRID_W;
+                    h = 12 * GRID_H;
+                };
+
+                class BanPlayerButton : A3A_ShortcutButton
+                {
+                    idc = A3A_IDC_BANPLAYERBUTTON;
+                    text = $STR_antistasi_dialogs_main_admin_ban_player_button;
+                    x = 120 * GRID_W;
+                    y = 67 * GRID_H;
+                    w = 32 * GRID_W;
+                    h = 12 * GRID_H;
+                };
+
+                class CopyIdButton : A3A_ShortcutButton
+                {
+                    idc = -1;
+                    text = $STR_antistasi_dialogs_main_admin_copy_uid_button;
+                    onButtonClick = "[""adminCopyUID""] call A3A_GUI_fnc_playerManagementTab";
+                    x = 120 * GRID_W;
+                    y = 82 * GRID_H;
+                    w = 32 * GRID_W;
+                    h = 12 * GRID_H;
+                };
+            };
+        };
+
+
+        // Close and Back buttons
+        class BackButton : A3A_BackButton
+        {
+            idc = A3A_IDC_MAINDIALOGBACKBUTTON;
+            x = DIALOG_X + DIALOG_W * GRID_W - 12 * GRID_W;
+            y = DIALOG_Y - 10 * GRID_H;
+        };
+
+        class CloseButton : A3A_CloseButton
+        {
+            idc = -1;
+            x = DIALOG_X + DIALOG_W * GRID_W - 5 * GRID_W;
+            y = DIALOG_Y - 10 * GRID_H;
+        };
+    };
+};
+
+
+class A3A_AdminCopyUID
+{
+    idd = A3A_IDD_ADMINCOPY;
+    onLoad = "['onLoad'] spawn A3A_GUI_fnc_adminCopyUIDDialog";
+
+    class Controls
+    {
+        class Titlebar : A3A_TitlebarText
+        {
+            idc = -1;
+            text = $STR_antistasi_admincopyid_title;
+            colorBackground[] = A3A_COLOR_TITLEBAR_BACKGROUND;
+            x = CENTER_X(48);
+            y = CENTER_Y(31) - 5 * GRID_H;
+            w = 48 * GRID_W;
+            h = 5 * GRID_H;
+        };
+        class Background : A3A_Background
+        {
+            idc = -1;
+            x = CENTER_X(48);
+            y = CENTER_Y(31);
+            w = 48 * GRID_W;
+            h = 31 * GRID_H;
+        };
+        class TransferInfoText : A3A_StructuredText
+        {
+            text = $STR_antistasi_admincopyid_main;
+            idc = A3A_IDC_ADMINCOPY_INFO;
+            x = CENTER_X(48) + 2 * GRID_W;
+            y = CENTER_Y(31) + 2 * GRID_H;
+            w = 44 * GRID_W;
+            h = 14 * GRID_H;
+        };
+        class UIDBox : A3A_Edit
+        {
+            text = "";
+            idc = A3A_IDC_ADMINCOPY_UIDTEXT;
+            x = CENTER_X(48) + 2 * GRID_W;
+            y = CENTER_Y(31) + 16 * GRID_H;
+            w = 44 * GRID_W;
+            h = 6 * GRID_H;
+            canModify = 0;
+        };
+        class CancelButton : A3A_Button
+        {
+            idc = A3A_IDC_ADMINCOPY_CANCEL;
+            text = $STR_antistasi_dialogs_setup_confirm_cancel;
+            onButtonClick = "closeDialog 0";
+            x = CENTER_X(48) + 2 * GRID_W;
+            y = CENTER_Y(31) + 24 * GRID_H;
+            w = 18 * GRID_W;
+            h = 5 * GRID_H;
+        };
+    };
+};
