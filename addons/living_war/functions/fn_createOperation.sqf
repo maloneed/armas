@@ -15,6 +15,6 @@ _ops pushBack _operation;
 _state set ["operations", _ops];
 _state set ["sequence", _seq];
 missionNamespace setVariable ["LW_state", _state, true];
-[_id, createHashMapFromArray [["operation", _id], ["title", _title]]] call LW_fnc_radioPublish;
+["ORDER_ASSIGNED", createHashMapFromArray [["operation", _id], ["title", _title]], "OPERATIONAL"] call LW_fnc_radioPublish;
 missionNamespace setVariable ["LW_dirty", true, true];
 _operation
